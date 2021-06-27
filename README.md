@@ -3,6 +3,11 @@
 - hello_world is initial rust app
 - hello_cargo is working with build system and package manager
 
+## Starting Tips
+
+- Git files removed from hello_cargo for commit purposes.
+- Normally, `cargo new hello_cargo` will generate src folder, Cargo.toml, .gitignore, and hidden .git directory
+
 ## Useful Commands
 
 - Quick reference
