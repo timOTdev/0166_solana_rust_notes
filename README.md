@@ -2,6 +2,7 @@
 
 - hello_world is initial rust app
 - hello_cargo is working with build system and package manager
+- learn_rust_book has my notes from the book.
 
 ## Starting Tips
 
@@ -30,4 +31,3 @@ $ cargo build --release // Compiles cargo project to target/release folder
 ## Resources
 
 - Learning from [Rust Book](https://www.rust-lang.org/learn)
-- Taking notes on [my notion page](https://www.notion.so/How-Rusty-Is-Your-Rust-Lang-fe1988349f1246598fbd5d653f301cc7)
