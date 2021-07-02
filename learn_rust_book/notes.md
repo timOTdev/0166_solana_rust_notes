@@ -329,3 +329,279 @@ fn main() {
 
     - Will get out of bounds if accessing outside of range. (runtime error)
     - Rust's first example of safety principle: will check the index the user enters and exits program (aka panic). Other low-level languages don't do this check and let you access that invalid physical memory space and continue running.
+
+## 3.3 Functions
+
+- `main` is the primary entry point of a program.
+- Rust uses snake case all lowercase and with underscores.
+- Function location doesn't matter, it will get hoisted.
+- Function parameter types must always be defined. Helps for compiler to discern any ambiguity.
+
+```rust
+// Function examples
+fn main() {
+    println!("Hello, world!");
+
+    another_function();
+}
+
+fn another_function() {
+    println!("Another function.");
+}
+
+// See more examples in projects.
+```
+
+- Rust is an expression-based language, more distintive versus other languages.
+- *Statements* are instructions that perform some action and do not return a value.
+- *Expressions* evaluate to a resulting value.
+    - Also calling a function, calling a macro, or creating new scopes with {} are examples of expressions.
+
+- You can't assign a value to a variable if statements never return a value.
+- Rust is different from Ruby and C where assignment returns the value of the assignment.
+```rust
+// Function definitions are also statements in itself.
+fn main() {
+    let y = 6;
+}
+
+// Error: There's no value being returned for the variable to bind to.
+fn main() {
+    let x = (let y = 6);
+}
+
+// Ruby and C act like this, not Rust.
+// Now both x and y each equal 6.
+fn main() {
+    x = y = 6;
+}
+```
+
+- The Y block is an expression because it returns 4.
+- *Expressions do not include ending semicolons*.
+- If you add a semicolon, it is considered a statement and will not return a value.
+
+```rust
+// x + 1 is an expression here and does NOT have a semicolon.
+fn main() {
+    let x = 5;
+
+    let y = {
+        let x = 3;
+        x + 1
+    };
+
+    println!("The value of y is: {}", y);
+}
+```
+
+- We declare types of the return value but don't name the return values.
+- Just the number 5 is perfectly valid function in Rust.
+    - This is because there's no semicolon so considered and expression, aka it returns that value.
+```rust
+// The type of return is defined as i32.
+// Note: no semicolon on 5 makes it an expression.
+fn five() -> i32 {
+    5
+}
+
+fn main() {
+    let x = five();
+
+    println!("The value of x is: {}", x);
+}
+
+// x +1 will be evaluated and return.
+fn main() {
+    let x = plus_one(5);
+
+    println!("The value of x is: {}", x);
+}
+
+fn plus_one(x: i32) -> i32 {
+    x + 1
+}
+
+// This will error because of semicolon on x+1;
+// That makes it a statement, not an expression.
+fn main() {
+    let x = plus_one(5);
+
+    println!("The value of x is: {}", x);
+}
+
+fn plus_one(x: i32) -> i32 {
+    x + 1;
+}
+```
+
+## 3.4 Functions
+
+- Simple comments use `//`
+- For mutiple comments, each line needs double slashes.
+- Convention is usually have d-slashes above when you want to comment.
+    - Possible but not convention: doing inline double slashes to make comments.
+
+```rust
+// Normal comment
+fn main() {
+// hello, world
+}
+
+// Multi-line comment
+fn main() {
+// So we’re doing something complicated here, long enough that we need
+// multiple lines of comments to do it! Whew! Hopefully, this comment will
+// explain what’s going on.
+}
+
+// Convention to comment above the line.
+fn main() {
+    // I’m feeling lucky today
+    let lucky_number = 7;
+}
+
+// Possible but not recommended.
+fn main() {
+    let lucky_number = 7; // I’m feeling lucky today
+}
+```
+
+## 3.5 Control Flow
+
+- If statements don't have the parentheses.
+- Else blocks of code are optional just like other languages.
+
+- The conditional in an if-statement must be a boolean.
+- Unlike Ruby or JS, Rust will not auto try to convert non-boolean types.
+
+- Rust evaluates the first true condition and stops.
+- Chapter 6 has `match` construct for too many if statements.
+
+```rust
+// This will cause an error.
+fn main() {
+    let number = 3;
+
+    if number {
+        println!("number was three");
+    }
+}
+
+// The statement evaluates to boolean, so this works.
+fn main() {
+    let number = 3;
+
+    if number != 0 {
+        println!("number was something other than zero");
+    }
+}
+
+// Only the 2nd block was ran, being the first true condition.
+fn main() {
+    let number = 6;
+
+    if number % 4 == 0 {
+        println!("number is divisible by 4");
+    } else if number % 3 == 0 {
+        println!("number is divisible by 3");
+    } else if number % 2 == 0 {
+        println!("number is divisible by 2");
+    } else {
+        println!("number is not divisible by 4, 3, or 2");
+    }
+}
+```
+- The if-else arms must have the same type of will give an error.
+- Rust must know the type of the variable at compile time to guarantee type safety.
+- Determining type at runtime is mor complex.
+
+```rust
+// "six" needs to be 6 to evaluate correctly.
+fn main() {
+    let condition = true;
+
+    let number = if condition { 5 } else { "six" };
+
+    println!("The value of number is: {}", number);
+}
+```
+
+- Loops
+    - 3 types: `loop`, `while`, `for`
+    - `break` lets you exit the loop.
+    - Can also supply value to return after break expression.
+    - Notice the ; to end the statement and assigns the value to result.
+
+    ```rust
+    // This runs forever until you push Ctrl + C.
+    fn main() {
+        loop {
+            println!("again!");
+        }
+    }
+
+    // If you want a return value to know when the loop broke.
+    fn main() {
+        let mut counter = 0;
+
+        let result = loop {
+            counter += 1;
+
+            if counter == 10 {
+                break counter * 2;
+            }
+        };
+
+        println!("The result is {}", result);
+    }
+    ```
+
+- While
+    - Runs until the condition is false.
+
+```rust
+fn main() {
+    let mut number = 3;
+
+    while number != 0 {
+        println!("{}!", number);
+
+        number -= 1;
+    }
+
+    println!("LIFTOFF!!!");
+}
+```
+
+- For loops
+    - The most commonly used loops in Rust.
+    - Can also use a while loop to iterate over a collection. This is more error prone if index length is wrong.
+    - Also slower because it has to check conditionals at every iteration.
+    - `Range` is a useful type provided with the standard library if you want to do a countdown.
+    - `rev` also provides a reversed range.
+
+```rust
+// You won't have to track index length.
+fn main() {
+    let a = [10, 20, 30, 40, 50];
+
+    for element in a.iter() {
+        println!("the value is: {}", element);
+    }
+}
+
+// Using Range.
+fn main() {
+    for number in (1..4).rev() {
+        println!("{}!", number);
+    }
+    println!("LIFTOFF!!!");
+}
+```
+
+- Summary
+    - You can build small programs to learn:
+    1. Convert temperatures between Fahrenheit and Celsius.
+    2. Generate the nth Fibonacci number.
+    3. Print the lyrics to the Christmas carol “The Twelve Days of Christmas,” taking advantage of the repetition in the song.
