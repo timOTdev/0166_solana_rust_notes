@@ -120,6 +120,93 @@ fn main() {
 - `cargo check` - Help speed up development by not creating executable.
 - Run `cargo build --release` when you're deploying or benchmarking.
 
+# 2.0 Programming a Guessing Game
+
+- Implement a random integer between 1 and 100.
+- Implement the player to enter a guess.
+- It will indicate too low or too high.
+- If the guess is correct, it will congratulate and exit program
+
+- Commands used:
+```rust
+cargo new guessing_game
+cd guessing_game
+
+cargo run
+
+```
+
+## 2.1 Processing a Guess
+
+- The prelude brings only a few types into the scope of every program.
+- We have to use `use` statement to bring in other libraries.
+- The `std::io` is a standard library.
+
+## 2.2 Storing Values with Variables
+
+- Variables are immutable by default unless you put `mut`.
+- `String::new` is a function that returns a new instance of String.
+- `String` is a type, `::` means that `new` is an associated function of the string type.
+- `new` is not implemented on the instance but rather on the String type itself.
+- Other languages call this "static method".
+
+- We could have also used `std::io:stdin` if we didn't put the `use:std::io at the top.
+- The `std::io` library returns and instance of `stdin`.
+- `.read_line(&mut guess)` is a method on the `stdin` and takes 1 argument.
+    - It appends the user's input into a string.
+    - The string argument passed in must be mutable.
+- `&` indidates that the argument is a reference.
+    - Lets the program access one piece of data without having to copy data into memory multiple times
+    - References are immutable by default.
+    - Details are not important right now, see Chapter 4.
+
+## 2.3 Handling Potential Failure with the Result Type
+
+- Good to divide lines of code to make it more readable.
+- TIP: The right way to suppress the warning is to actually write error handling.
+- But we want to crash the program, so we use `expect`.
+- `.expect` is comes from a type called `io:Result`.
+- There are many types that are called Result but `io:Result` here is a specific version of submodules.
+
+- Result types are *enumerations*, and their values are called *variants*.
+- There are 2 variants for Result type: Ok and Err.
+- `Err` crashes the program and passes the argument to expect method.
+- `Ok` will continue and return the user-inputed value (in number of bytes)
+
+## 2.4 Printing Values with println! Placeholders
+
+- Can also print multiple values, not use one.
+
+```rust
+let x = 5;
+let y = 10;
+
+println!("x = {} and y = {}", x, y);
+```
+
+## 2.5 Testing the First Part
+
+- We use `cargo run` to test.
+- Currently prints out the user input to the screen.
+
+## 2.6 Generating a Secret Number
+
+## 2.7 Using a Crate to Get More Functionality
+
+## 2.8 Updating a Crate to Get a New Version
+
+## 2.9 Generating a Random Number
+
+## 2.10 Comparing the Guess to the Secret Number
+
+## 2.11 Allowing Multiple Guesses with Looping
+
+## 2.12 Quitting After a Correct Guess
+
+## 2.13 Handling Invalid Input
+
+## 2.14 Summary
+
 # 3.0 Common Programming Concepts
 
 ## 3.1 Variables and Mutability
