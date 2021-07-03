@@ -191,21 +191,69 @@ println!("x = {} and y = {}", x, y);
 
 ## 2.6 Generating a Secret Number
 
+- There's no random number functionality in Rust.
+- We will use `rand` crate.
+
 ## 2.7 Using a Crate to Get More Functionality
 
-## 2.8 Updating a Crate to Get a New Version
+- A crate is a collection of source code files.
+    - Our project is a binary crate, which has an executable.
+    - A rand crate is a library crate, which has code to be used in projects.
+    - You can get more crates on crates.io.
+    - I think of crates like npm packages.
 
-## 2.9 Generating a Random Number
+- We need to add the rand crate to our project.
+    - We add the crate with the semantic version in the Cargo.toml file.
+    - Add under the dependencies section as cargo reads from top to bottom.
 
-## 2.10 Comparing the Guess to the Secret Number
+- Semantic Version or SemVer is where the number `0.8.3` means at least that but below `0.9.0`.
+    - This makes sure your code still functions with latest patch releases.
 
-## 2.11 Allowing Multiple Guesses with Looping
+- We have to also `cargo build` our project to get the new crate.
+    - This command grabs the data from the registry on crate.io.
+    - If you run the command again, cargo is smart and will just exit with `Finished`.
+    - If you make a minor code change, it will just say `compiling`.
 
-## 2.12 Quitting After a Correct Guess
+## 2.8 Ensuring Reproducible Builds with Cargo.lock File
 
-## 2.13 Handling Invalid Input
+- The lock file ensures that the versions specified in the toml file are consistent.
+- Cargo uses this lock file to build your project in the future to speed up the build process.
 
-## 2.14 Summary
+## 2.9 Updating a Crate to Get a New Version
+
+- If you want to run update, run `cargo update`.
+    - This command ignores the lock file.
+    - This will update all the crates to the SemVer requirements.
+    - Such as between `0.8.3` and `0.9.0`, it will not go beyond.
+    - The updates will then be written to the lock file.
+
+- If you want to upgrade beyond SemVer, you have to do it manually in the toml file.
+    - Then run `cargo build` again to update the lock file.
+    - There's more in chapter 14.
+
+## 2.10 Generating a Random Number
+
+- First, we add the crate: `use rand::Rng`.
+- Rng defines methods that the random number generator implements.
+- `rand::thread_rng` gives us the particular random number generator we are using.
+- `gen_range` is the method that takes in value ranges with "..".
+    - This is a method from the Rng trait we brought in for this scope.
+    - Normally, lower bound inclusive and upper bound exclusive.
+    - The syntax `1..101` and `1..=100` are equal in this case.
+
+- Use `cargo doc --open` builds documentation provided by all your dependencies.
+- This compiles locally and opens in your browser.
+- Try clicking rand.
+
+## 2.11 Comparing the Guess to the Secret Number
+
+## 2.12 Allowing Multiple Guesses with Looping
+
+## 2.13 Quitting After a Correct Guess
+
+## 2.14 Handling Invalid Input
+
+## 2.15 Summary
 
 # 3.0 Common Programming Concepts
 
