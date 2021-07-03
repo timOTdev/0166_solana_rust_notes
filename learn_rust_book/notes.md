@@ -277,11 +277,31 @@ println!("x = {} and y = {}", x, y);
 
 ## 2.12 Allowing Multiple Guesses with Looping
 
+- Adding a loop will cause an infinite loop unless there's a stop condition.
+    - We need to use `break` to stop the program.
+    - If you remember, a non-integer input will also exit the program.
+    - There's always Ctrl + C also.
+
 ## 2.13 Quitting After a Correct Guess
+
+- We add a break in the "you win" arm to exit the match block.
+- This will also exit the program because it is the end.
 
 ## 2.14 Handling Invalid Input
 
+- If a user enters anything other than a number, we still want to continue.
+- The way to do this is instead of using expect during the string conversion, use a `match` instead.
+- Add `match` in front of the guess string conversion.
+
+- parse method returns either Ok or Err, and also passes the value.
+    - We handle the value with num which then just stores the number on the variable as normal.
+    - The `_` is a catchall for any value.
+    - If not a number, the loop will continue, effectively asking for another guess.
+
 ## 2.15 Summary
+
+- We also remove the console of the secret number.
+- Read on chapter 3 to learn more concepts.
 
 # 3.0 Common Programming Concepts
 
