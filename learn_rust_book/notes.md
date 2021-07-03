@@ -247,6 +247,34 @@ println!("x = {} and y = {}", x, y);
 
 ## 2.11 Comparing the Guess to the Secret Number
 
+- Ordering is another enum. The variants are Less, Greater, Equal.
+- `guess.cmp(&secret_number)` compares the two numbers against each other.
+    - The return value is a variant of the Ordering enum.
+
+- A `match` expression is made up of `arms`.
+    - I like to think of `match` like Javascript's `switch` statment and arms are `cases`.
+    - `match` identifies the first matching arm and returns that arm.
+
+- However, the user's guess and the random number are not the same type.
+    - Rust is a strong, static type system.
+    - `guess` was a String instance when we declared it.
+    - `secret_number` variable was originally an int when generated.
+    - Rust normally defaults to `i32`, an unsigned 32-bit number.
+
+- We have to convert the guess into an integer.
+    - We use something called shadow to rename the type of the guess variable.
+    - This is possible because Rust allows renaming of types when redeclared.
+
+- We use `let guess: u32 = guess.trim().parse().expect("Please type a number");`
+    - trim takes off any extra whitespace or non-numerical values like "\n".
+    - When `read_line` was used, it adds the value to a new string and subsequently "\n" as well.
+    - `guess` literaly is `5\n` for String.
+
+  - `parse` will convert string into some kind of number.
+    - It has to be some form of a number. Or else will return a Result type  with Err variant.
+    - Returns Ok variant if conversion was successful.
+    - `expect` is the same as before.
+
 ## 2.12 Allowing Multiple Guesses with Looping
 
 ## 2.13 Quitting After a Correct Guess
