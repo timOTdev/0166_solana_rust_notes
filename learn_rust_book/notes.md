@@ -788,3 +788,201 @@ fn main() {
     1. Convert temperatures between Fahrenheit and Celsius.
     2. Generate the nth Fibonacci number.
     3. Print the lyrics to the Christmas carol “The Twelve Days of Christmas,” taking advantage of the repetition in the song.
+
+# 4.0 Understanding Ownership
+
+- Allows Rust to make memory safety guarantees without needing garbage collector.
+
+## 4.1 What is Ownership?
+
+- All programs have to manage computer's memory while running.
+    - Some programs do it while the program is running and other path is the programmer must do it manually.
+    - Rust has ownership with rules that the compiler checks at compile time.
+    - Ownership is a new concept so spend time to undertsand and get good at it.
+
+- **Stacks and Heaps**
+    - Stacks follow LIFO
+    - We *push* on to the stack and *pop* off the stack.
+    - The data stored on stacks must have a known, fixed size.
+    - The anology is stacking plates.
+
+- **Heaps**
+    - Heaps are less organized because of the data size variability.
+    - Space must be requested to fit the data then a pointer must be returned.
+    - *Allocating on the heap* is when you do this assignment process.
+    - The analogy is being seated at a restaurant.
+
+- **Heaps shortcomings**
+    - Heaps are slower to allocate the data, especially if the data size is big.
+    - Slow to process data because it has to use the point to get there.
+    - It has to keep bookkeeping to prepare for the next allocation.
+    - It must make sure there are no duplicate data, freeing up unused data on the heap, allocating new space if needed.
+    - Ownership aims to solve all the problems of the heap.
+
+- **Ownership Rules**
+    - Each value has a variable called its `owner`.
+    - There can only be one owner at a time.
+    - The value is dropped when the owner goes out of scope.
+
+- **Variable Scope**
+    - The idea of when `owner` is in scope and not.
+
+```rust
+fn main() {
+    // s is not valid here, it’s not yet declared
+
+    let s = "hello";   // s is valid from this point forward
+
+    // do stuff with s
+
+    // this scope is now over, and s is no longer valid
+}
+```
+
+- **The String Type**
+    - We need to use a type more complex than chapter 3.
+    - Strings are not known at compile time, so we need a way to allocate enough space.
+    - String literals are immutable because how it deals with memory.
+    - We use the second string type, `String`. This is allocated to a heap.
+    - Creating a `String` from a string literal: `let s = String::from("hello");`
+
+- We can mutate this.
+```rust
+fn main() {
+    let mut s = String::from("hello");
+
+    s.push_str(", world!"); // push_str() appends a literal to a String
+
+    println!("{}", s); // This will print `hello, world!`
+}
+```
+
+- **Memory and Allocation**
+    - Again, string literals are fast because they are known before compile time and are immutable.
+    - We need to use `String` for unknown data.
+    - It needs to be requested from memory at runtime and the memory needs to be returned with we're done.
+
+- Rust automatically removes memory allocation at the end of the closing curly brace called `drop`
+    - Historically, other languages with garbage collector (GC), we have to pair an allocate with exactly a free.
+    - In C++, this pattern is called *Resource Aquisition Is Initialization (RAII).
+
+- **Ways Variables and Data Interact: Move**
+    - The Basic example is easy because it is a copy by value, not by reference.
+
+    - String example is a copy by reference.
+    - The pointer, length, and capacity is actually being copied from the String type of "hello".
+    - It can be though of as a *shallow copy*, or a *move* in Rust terms.
+    - Not actually copying the values of the String "hello" to a new memory block (aka *deep copy*).
+    - The code below will cause an error because of *double free error*.
+
+    - Rust will never make deep copies unless you tell it to.
+    - Automatic copies are assumed to be inexpensive for performance.
+```rust
+fn main() {
+    // Basic Example
+    // let x = 5;
+    // let y = x;
+
+    // String Example
+    let s1 = String::from("hello");
+    let s2 = s1;
+}
+```
+
+- **Ways Variables and Data Interact: Clone**
+    - Using `clone` will make a deep copy.
+    - Considered expensive operation.
+
+- **Stack-Only Data: Copy**
+    - We can use `Copy` trait for types like integers that need to go on the stack.
+    - The following types implement the `Copy` trait and is still usuable after the assignment.
+    - Types:
+       1. All the integer types, such as u32.
+        2. The Boolean type, bool, with values true and false.
+        3. All the floating point types, such as f64.
+        4. The character type, char.
+        5. Tuples, if they only contain types that also implement Copy. For example, (i32, i32) implements Copy, but (i32, String) does not.
+
+- **Onwership and Functions**
+    - Notice a `move` has a `drop` called later
+```rust
+fn main() {
+    let s = String::from("hello");  // s comes into scope
+
+    takes_ownership(s);             // s's value moves into the function...
+                                    // ... and so is no longer valid here
+
+    let x = 5;                      // x comes into scope
+
+    makes_copy(x);                  // x would move into the function,
+                                    // but i32 is Copy, so it's okay to still
+                                    // use x afterward
+} // Here, x goes out of scope, then s. But because s's value was moved, nothing
+  // special happens.
+
+fn takes_ownership(some_string: String) { // some_string comes into scope
+    println!("{}", some_string);
+} // Here, some_string goes out of scope and `drop` is called. The backing
+  // memory is freed.
+
+fn makes_copy(some_integer: i32) { // some_integer comes into scope
+    println!("{}", some_integer);
+} // Here, some_integer goes out of scope. Nothing special happens.
+```
+
+- **Return Values and Scope**
+    - You can also pass ownership by returning it and assigning it to a variable.
+    - You can also use tuples to return back data.
+```rust
+fn main() {
+    let s1 = gives_ownership();         // gives_ownership moves its return
+                                        // value into s1
+
+    let s2 = String::from("hello");     // s2 comes into scope
+
+    let s3 = takes_and_gives_back(s2);  // s2 is moved into
+                                        // takes_and_gives_back, which also
+                                        // moves its return value into s3
+} // Here, s3 goes out of scope and is dropped. s2 goes out of scope but was
+  // moved, so nothing happens. s1 goes out of scope and is dropped.
+
+fn gives_ownership() -> String {             // gives_ownership will move its
+                                             // return value into the function
+                                             // that calls it
+
+    let some_string = String::from("hello"); // some_string comes into scope
+
+    some_string                              // some_string is returned and
+                                             // moves out to the calling
+                                             // function
+}
+
+// takes_and_gives_back will take a String and return one
+fn takes_and_gives_back(a_string: String) -> String { // a_string comes into
+                                                      // scope
+
+    a_string  // a_string is returned and moves out to the calling function
+}
+```
+
+- Using tuples in return data.
+- We have something easier for all this called references.
+```rust
+fn main() {
+    let s1 = String::from("hello");
+
+    let (s2, len) = calculate_length(s1);
+
+    println!("The length of '{}' is {}.", s2, len);
+}
+
+fn calculate_length(s: String) -> (String, usize) {
+    let length = s.len(); // len() returns the length of a String
+
+    (s, length)
+}
+```
+
+## 4.2 References and Borrowing
+
+## 4.3 The Slice Type
