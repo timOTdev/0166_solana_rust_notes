@@ -966,7 +966,7 @@ fn takes_and_gives_back(a_string: String) -> String { // a_string comes into
 ```
 
 - Using tuples in return data.
-- We have something easier for all this called references.
+- We have something easier for all this called `references`.
 ```rust
 fn main() {
     let s1 = String::from("hello");
@@ -985,4 +985,165 @@ fn calculate_length(s: String) -> (String, usize) {
 
 ## 4.2 References and Borrowing
 
+- Now we are going to use *references* by using ampersands `&`.
+    - *references* are refering to some value without taking ownership of it.
+    - *dereferencing* uses `*`. In chapter 8 and 15.
+    - In the previous section code, we have to return the variable to pass the ownership back to the variable to be used in the string println.
+    - Now this new code with reference is different.
+        - We don't have a tuple for the variable name.
+        - We pass in `&s1` to the `calculate_length` function. The function takes in `&String`.
+        - The return in the function is gone.
+
+```rust
+fn main() {
+    let s1 = String::from("hello");
+
+    // &s1 refers to the value of s1 but does NOT own it.
+    // So, s1 will not be dropped.
+    let len = calculate_length(&s1);
+
+    println!("The length of '{}' is {}.", s1, len);
+}
+
+// & in String indicates that s is a reference.
+fn calculate_length(s: &String) -> usize {
+    s.len()
+}
+```
+
+- **Borrowing**
+    - This is the idea of having references as function parameters is *borrowing*.
+    - One can't modify something we are borrowing either!
+    - Like *variables* are immutable by default, *references* are the same.
+    - However, there is only 1 way to get around this.
+
+```rust
+// You can't modify a reference you borrow!
+fn main() {
+    let s = String::from("hello");
+
+    change(&s);
+}
+
+fn change(some_string: &String) {
+    some_string.push_str(", world");
+}
+```
+
+- **Mutable References**
+- We can mutate the reference by using `&mut`.
+
+```rust
+fn main() {
+    let mut s = String::from("hello");
+
+    // Add &mut to make the reference mutable.
+    change(&mut s);
+}
+
+// Also have to let the function know that it's mutable.
+fn change(some_string: &mut String) {
+    some_string.push_str(", world");
+}
+```
+
+- There can only be one mutable reference to a piece of data in a particular scope.
+- This restriction helps keep the mutations in a controlled fashion.
+- It helps prevent *data race conditions* because Rust doesn't even compil code with data races.
+    1. When 2 pointers or more try to access the same data.
+    2. When 1 of the pointer is being written with data.
+    3. No mechanism to synchronize access to the data.
+
+```rust
+// Example 1 Error
+fn main() {
+    let mut s = String::from("hello");
+
+    // Can't have 2 mutable references in a scope!
+    let r1 = &mut s;
+    let r2 = &mut s;
+
+    println!("{}, {}", r1, r2);
+}
+
+// Example 2 Error
+fn main() {
+    let mut s = String::from("hello");
+
+    // Users of an immutable reference don’t expect the values to suddenly change out from under them!
+    let r1 = &s; // no problem
+    let r2 = &s; // no problem
+    let r3 = &mut s; // BIG PROBLEM
+
+    println!("{}, {}, and {}", r1, r2, r3);
+}
+```
+
+- However, this is okay because we use the data before we try to mutate it.
+- Or we give it its own scope.
+```rust
+// Use the reference before mutating it is okay.
+fn main() {
+    let mut s = String::from("hello");
+
+    let r1 = &s; // no problem
+    let r2 = &s; // no problem
+    println!("{} and {}", r1, r2);
+    // r1 and r2 are no longer used after this point
+
+    let r3 = &mut s; // no problem
+    println!("{}", r3);
+}
+
+// Making own scope.
+fn main() {
+    let mut s = String::from("hello");
+
+    {
+        let r1 = &mut s;
+    } // r1 goes out of scope here, so we can make a new reference with no problems.
+
+    let r2 = &mut s;
+}
+```
+
+- **Dangling References**
+- A *dangling pointer* is where the pointer to the location in memory may be given to something else. Basically, pointing to something that was freed from memory or something we are not expecting.
+    - Rust also guarantees that the data will not go out of scope before the reference to the data does.
+    - There's something called *lifetime* but that's in chapter 10.
+
+```rust
+fn main() {
+    let reference_to_nothing = dangle();
+}
+
+fn dangle() -> &String { // dangle returns a reference to a String
+    let s = String::from("hello"); // new String
+
+    &s // return a reference to the String, s
+
+    // s will be dropped after the curly brace,
+    // the reference to s will be pointing to invalid String. Danger!
+}
+```
+
+- Instead we want to return the String directly.
+- The ownership is moved outside of the function.
+
+```Rust
+fn dangle() -> String {
+    let s = String::from("hello");
+
+    s
+}
+```
+
+-**Summary**
+- You can have unlimited immutable references but *only *one mutable reference*.
+- References must always be pointed correctly and valid.
+
 ## 4.3 The Slice Type
+
+- **String Slices**
+
+- **Other Slices**
