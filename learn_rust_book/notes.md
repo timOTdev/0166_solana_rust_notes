@@ -12,9 +12,9 @@
 
 - Through balancing powerful technical capacity and a great developer experience, Rust gives you the option to control low-level details (such as memory usage) without all the hassle traditionally associated with such control.
 - In Rust, the compiler plays a gatekeeper role by refusing to compile code with these elusive bugs, including concurrency bugs.
-- *Cargo* is the included dependency manager and build tool.
-- *Rustfmt* is the coding style.
-- *Rust Language Server* for IDE integration.
+- _Cargo_ is the included dependency manager and build tool.
+- _Rustfmt_ is the coding style.
+- _Rust Language Server_ for IDE integration.
 - Big companies use Rust in production for command line tools, web services, DevOps tooling, embedded devices, audio and video analysis and transcoding, cryptocurrencies, bioinformatics, search engines, Internet of Things applications, machine learning, and even major parts of the Firefox web browser.
 - Assumes you've written code in another language, not complete beginner to coding.
 - Later chapters build on concepts in earlier chapters, and earlier chapters might not delve into details on a topic.
@@ -26,13 +26,13 @@
 ## 1.1 Installation
 
 - I installed for windows.
-- Commands in this book work in both *cmd.exe* and PowerShell.
-- `rustup update`  - Updates rust to latest version
-- `rustup self uninstall`  - Uninstalls rust
+- Commands in this book work in both _cmd.exe_ and PowerShell.
+- `rustup update` - Updates rust to latest version
+- `rustup self uninstall` - Uninstalls rust
 - `rustc --version` - Check Rust version.
 - `rustup doc` - Load docs in browser and read offline.
 
-## 1.2 Hello, World!
+## 1.2 Hello, World
 
 - Commands to run in terminal:
 
@@ -64,7 +64,7 @@ fn main() {
 - Rust is ahead-of-time compiled, meaning someone else can run your app without installing Rust.
 - `rustc` is fine for simple program compiling, use cargo for more advance dev chains.
 
-## 1.3 Hello, Cargo!
+## 1.3 Hello, Cargo
 
 - Cargo is a build system and package manager that builds code, downloads libaries/dependencies, and builds them together.
 - Cargo has the same commands for all OS
@@ -72,9 +72,10 @@ fn main() {
 - The top-level project directory is just for README files, license information, configuration files, and anything else not related to your code.
 - `cargo --version` - Checks if cargo is installed.
 - `cargo new hello_cargo` - Creates new cargo app like create-react-app. Will not generate Git files if an existing Git repository.
-    - `cargo new --vcs=git` will generate Git files in an existing Git Repository.
+  - `cargo new --vcs=git` will generate Git files in an existing Git Repository.
 - `Cargo.toml` is like package.json. Stands for Tom's Obvious, Minimal Language)
-    - Packages are called *crates* in Cargo. Like *packages* for NPM.
+
+  - Packages are called _crates_ in Cargo. Like _packages_ for NPM.
 
     ```rust
     // Terminal commands
@@ -128,6 +129,7 @@ fn main() {
 - If the guess is correct, it will congratulate and exit program
 
 - Commands used:
+
 ```rust
 cargo new guessing_game
 cd guessing_game
@@ -153,12 +155,12 @@ cargo run
 - We could have also used `std::io:stdin` if we didn't put the `use:std::io at the top.
 - The `std::io` library returns and instance of `stdin`.
 - `.read_line(&mut guess)` is a method on the `stdin` and takes 1 argument.
-    - It appends the user's input into a string.
-    - The string argument passed in must be mutable.
+  - It appends the user's input into a string.
+  - The string argument passed in must be mutable.
 - `&` indidates that the argument is a reference.
-    - Lets the program access one piece of data without having to copy data into memory multiple times
-    - References are immutable by default.
-    - Details are not important right now, see Chapter 4.
+  - Lets the program access one piece of data without having to copy data into memory multiple times
+  - References are immutable by default.
+  - Details are not important right now, see Chapter 4.
 
 ## 2.3 Handling Potential Failure with the Result Type
 
@@ -168,7 +170,7 @@ cargo run
 - `.expect` is comes from a type called `io:Result`.
 - There are many types that are called Result but `io:Result` here is a specific version of submodules.
 
-- Result types are *enumerations*, and their values are called *variants*.
+- Result types are _enumerations_, and their values are called _variants_.
 - There are 2 variants for Result type: Ok and Err.
 - `Err` crashes the program and passes the argument to expect method.
 - `Ok` will continue and return the user-inputed value (in number of bytes)
@@ -197,22 +199,25 @@ println!("x = {} and y = {}", x, y);
 ## 2.7 Using a Crate to Get More Functionality
 
 - A crate is a collection of source code files.
-    - Our project is a binary crate, which has an executable.
-    - A rand crate is a library crate, which has code to be used in projects.
-    - You can get more crates on crates.io.
-    - I think of crates like npm packages.
+
+  - Our project is a binary crate, which has an executable.
+  - A rand crate is a library crate, which has code to be used in projects.
+  - You can get more crates on crates.io.
+  - I think of crates like npm packages.
 
 - We need to add the rand crate to our project.
-    - We add the crate with the semantic version in the Cargo.toml file.
-    - Add under the dependencies section as cargo reads from top to bottom.
+
+  - We add the crate with the semantic version in the Cargo.toml file.
+  - Add under the dependencies section as cargo reads from top to bottom.
 
 - Semantic Version or SemVer is where the number `0.8.3` means at least that but below `0.9.0`.
-    - This makes sure your code still functions with latest patch releases.
+
+  - This makes sure your code still functions with latest patch releases.
 
 - We have to also `cargo build` our project to get the new crate.
-    - This command grabs the data from the registry on crate.io.
-    - If you run the command again, cargo is smart and will just exit with `Finished`.
-    - If you make a minor code change, it will just say `compiling`.
+  - This command grabs the data from the registry on crate.io.
+  - If you run the command again, cargo is smart and will just exit with `Finished`.
+  - If you make a minor code change, it will just say `compiling`.
 
 ## 2.8 Ensuring Reproducible Builds with Cargo.lock File
 
@@ -222,14 +227,15 @@ println!("x = {} and y = {}", x, y);
 ## 2.9 Updating a Crate to Get a New Version
 
 - If you want to run update, run `cargo update`.
-    - This command ignores the lock file.
-    - This will update all the crates to the SemVer requirements.
-    - Such as between `0.8.3` and `0.9.0`, it will not go beyond.
-    - The updates will then be written to the lock file.
+
+  - This command ignores the lock file.
+  - This will update all the crates to the SemVer requirements.
+  - Such as between `0.8.3` and `0.9.0`, it will not go beyond.
+  - The updates will then be written to the lock file.
 
 - If you want to upgrade beyond SemVer, you have to do it manually in the toml file.
-    - Then run `cargo build` again to update the lock file.
-    - There's more in chapter 14.
+  - Then run `cargo build` again to update the lock file.
+  - There's more in chapter 14.
 
 ## 2.10 Generating a Random Number
 
@@ -237,9 +243,10 @@ println!("x = {} and y = {}", x, y);
 - Rng defines methods that the random number generator implements.
 - `rand::thread_rng` gives us the particular random number generator we are using.
 - `gen_range` is the method that takes in value ranges with "..".
-    - This is a method from the Rng trait we brought in for this scope.
-    - Normally, lower bound inclusive and upper bound exclusive.
-    - The syntax `1..101` and `1..=100` are equal in this case.
+
+  - This is a method from the Rng trait we brought in for this scope.
+  - Normally, lower bound inclusive and upper bound exclusive.
+  - The syntax `1..101` and `1..=100` are equal in this case.
 
 - Use `cargo doc --open` builds documentation provided by all your dependencies.
 - This compiles locally and opens in your browser.
@@ -249,38 +256,43 @@ println!("x = {} and y = {}", x, y);
 
 - Ordering is another enum. The variants are Less, Greater, Equal.
 - `guess.cmp(&secret_number)` compares the two numbers against each other.
-    - The return value is a variant of the Ordering enum.
+
+  - The return value is a variant of the Ordering enum.
 
 - A `match` expression is made up of `arms`.
-    - I like to think of `match` like Javascript's `switch` statment and arms are `cases`.
-    - `match` identifies the first matching arm and returns that arm.
+
+  - I like to think of `match` like Javascript's `switch` statment and arms are `cases`.
+  - `match` identifies the first matching arm and returns that arm.
 
 - However, the user's guess and the random number are not the same type.
-    - Rust is a strong, static type system.
-    - `guess` was a String instance when we declared it.
-    - `secret_number` variable was originally an int when generated.
-    - Rust normally defaults to `i32`, an unsigned 32-bit number.
+
+  - Rust is a strong, static type system.
+  - `guess` was a String instance when we declared it.
+  - `secret_number` variable was originally an int when generated.
+  - Rust normally defaults to `i32`, an unsigned 32-bit number.
 
 - We have to convert the guess into an integer.
-    - We use something called shadow to rename the type of the guess variable.
-    - This is possible because Rust allows renaming of types when redeclared.
+
+  - We use something called shadow to rename the type of the guess variable.
+  - This is possible because Rust allows renaming of types when redeclared.
 
 - We use `let guess: u32 = guess.trim().parse().expect("Please type a number");`
-    - trim takes off any extra whitespace or non-numerical values like "\n".
-    - When `read_line` was used, it adds the value to a new string and subsequently "\n" as well.
-    - `guess` literaly is `5\n` for String.
+
+  - trim takes off any extra whitespace or non-numerical values like "\n".
+  - When `read_line` was used, it adds the value to a new string and subsequently "\n" as well.
+  - `guess` literaly is `5\n` for String.
 
   - `parse` will convert string into some kind of number.
-    - It has to be some form of a number. Or else will return a Result type  with Err variant.
+    - It has to be some form of a number. Or else will return a Result type with Err variant.
     - Returns Ok variant if conversion was successful.
     - `expect` is the same as before.
 
 ## 2.12 Allowing Multiple Guesses with Looping
 
 - Adding a loop will cause an infinite loop unless there's a stop condition.
-    - We need to use `break` to stop the program.
-    - If you remember, a non-integer input will also exit the program.
-    - There's always Ctrl + C also.
+  - We need to use `break` to stop the program.
+  - If you remember, a non-integer input will also exit the program.
+  - There's always Ctrl + C also.
 
 ## 2.13 Quitting After a Correct Guess
 
@@ -294,9 +306,9 @@ println!("x = {} and y = {}", x, y);
 - Add `match` in front of the guess string conversion.
 
 - parse method returns either Ok or Err, and also passes the value.
-    - We handle the value with num which then just stores the number on the variable as normal.
-    - The `_` is a catchall for any value.
-    - If not a number, the loop will continue, effectively asking for another guess.
+  - We handle the value with num which then just stores the number on the variable as normal.
+  - The `_` is a catchall for any value.
+  - If not a number, the loop will continue, effectively asking for another guess.
 
 ## 2.15 Summary
 
@@ -313,23 +325,25 @@ println!("x = {} and y = {}", x, y);
 - [x] Variables Exercise
 - `mut` in front of variable name allows you to make variable mutable.
 - Balance performance versus clarity.
-    - Big data structures are faster if you mutate values.
-    - Small data structures are easier to abstract and write functional programming style.
+  - Big data structures are faster if you mutate values.
+  - Small data structures are easier to abstract and write functional programming style.
 - Values and constants are different.
 
 - Constant
-    - Uses `const` keyword. Diferences from let:
-      1. Are *always* immutable. You can't use `mut` with constants.
-      2. Can be declared in any scope, including global.
-      3. Set by constant expression, not result of a function call or computed values.
-    - Convention to use all caps. IE `const MAX_POINTS: u32 = 100_000`
-    - Constants last the lifetime for the whole of the program.
-    - Scoped to where declared.
+
+  - Uses `const` keyword. Diferences from let:
+    1. Are _always_ immutable. You can't use `mut` with constants.
+    2. Can be declared in any scope, including global.
+    3. Set by constant expression, not result of a function call or computed values.
+  - Convention to use all caps. IE `const MAX_POINTS: u32 = 100_000`
+  - Constants last the lifetime for the whole of the program.
+  - Scoped to where declared.
 
 - Shadowing
-    - When values carry over in subsequent declarations.
-    - We are just transforming the values but we can't reassign the variable name without using `let` keyword.
-    - Also allows changing of the type of the variable because we are *effectively creating a new variable with every new shadow.*
+
+  - When values carry over in subsequent declarations.
+  - We are just transforming the values but we can't reassign the variable name without using `let` keyword.
+  - Also allows changing of the type of the variable because we are _effectively creating a new variable with every new shadow._
 
     ```rust
     // Shadowing.
@@ -359,8 +373,9 @@ println!("x = {} and y = {}", x, y);
 
 ## 3.2 Data Types
 
-- Rust is a *statically typed language,* we must know types of all variables at compile time.
+- Rust is a _statically typed language,_ we must know types of all variables at compile time.
 - Compiler usually infers types from the value initialized for the variable.
+
 ```rust
   fn main() {
     let guess: u32 = "42".parse().expect("Not a number!");
@@ -376,30 +391,33 @@ println!("x = {} and y = {}", x, y);
 - Compound types can hold multiple values such as tuples and arrays.
 
 - Integer Types
-    - Can be signed and unsigned.
-    - Rust's integer defaults to `i32` , generally the fastest even on 64-bit systems.
-    - Use `i` for signed integer types
+
+  - Can be signed and unsigned.
+  - Rust's integer defaults to `i32` , generally the fastest even on 64-bit systems.
+  - Use `i` for signed integer types
     Use `u` for unsigned interge types
     Number represents amount of bits.
     8, 16, 32, 64, 128, arch bits.
-    - u8 is unsigned 8 bit integer.
-    - `isize` or `usize` are arch bits and depends on your computer architecture. Use these when indexing some sort of collection.
+  - u8 is unsigned 8 bit integer.
+  - `isize` or `usize` are arch bits and depends on your computer architecture. Use these when indexing some sort of collection.
 
-    - You can write in many ways including decimal, hex, octal binary, and byte.
-    - Numbers over the bit settings will cause *integer overflow* and *panic* at runtime (program exits with an error.
-    - During —release flag, rust does *not* check for integer overflow that causes panic.
+  - You can write in many ways including decimal, hex, octal binary, and byte.
+  - Numbers over the bit settings will cause _integer overflow_ and _panic_ at runtime (program exits with an error.
+  - During —release flag, rust does _not_ check for integer overflow that causes panic.
 
-    - *Complement Wrapping* will circle back to start at the minimum value of the range.
-    - There's 4 types to handle this overflow.
-      1. wrapping_* wraps in all modes IE `wrapping_add`
-      2. checked_* - Returns None value if overflow
-      3. overflowing_* - Returns value and Boolean indicating overflow
-      4. saturating_* - saturate with the minimum or maximum value.
+  - _Complement Wrapping_ will circle back to start at the minimum value of the range.
+  - There's 4 types to handle this overflow.
+    1. wrapping\_\* wraps in all modes IE `wrapping_add`
+    2. checked\_\* - Returns None value if overflow
+    3. overflowing\_\* - Returns value and Boolean indicating overflow
+    4. saturating\_\* - saturate with the minimum or maximum value.
 
 - Floating-Point Types
-    - Uses `f` character.
-    - Are decimal numbers and can be f32 or f64, default is f64.
-    - f64 has double precision and roughly same speed as f32.
+
+  - Uses `f` character.
+  - Are decimal numbers and can be f32 or f64, default is f64.
+  - f64 has double precision and roughly same speed as f32.
+
     ```rust
     fn main() {
         let x = 2.0; // f64
@@ -409,7 +427,9 @@ println!("x = {} and y = {}", x, y);
     ```
 
 - Numeric Operations
-    - We got all the basic math operations.
+
+  - We got all the basic math operations.
+
     ```rust
     fn main() {
         // addition
@@ -430,23 +450,27 @@ println!("x = {} and y = {}", x, y);
     ```
 
   - Boolean Type
-      - Either `true` or `false` and take up 1 byte.
+    - Either `true` or `false` and take up 1 byte.
 
 - Character Types
-    - Use single quotes with char literals.
-    - Use double quotes for string literals.
-    - 4 bytes in size and can be more than just ASCII.
+
+  - Use single quotes with char literals.
+  - Use double quotes for string literals.
+  - 4 bytes in size and can be more than just ASCII.
 
 - Compound Types
-    - Structures that can hold multiple values into 1 type.
-    - Rust has tuples and arrays.
 
-    - Tuple
-      - Tuples can vary with data types.
-      - Tuples are fixed length, can't redeclare size.
-      - Can destructure tuples into variables.
-      - Index access uses `.` IE x.0 or x.1
-      - Rust uses zero-based indexing.
+  - Structures that can hold multiple values into 1 type.
+  - Rust has tuples and arrays.
+
+  - Tuple
+
+    - Tuples can vary with data types.
+    - Tuples are fixed length, can't redeclare size.
+    - Can destructure tuples into variables.
+    - Index access uses `.` IE x.0 or x.1
+    - Rust uses zero-based indexing.
+
     ```rust
     // Heterogenous collection
     fn main() {
@@ -474,12 +498,13 @@ println!("x = {} and y = {}", x, y);
     }
     ```
 
-    - Array
-      - Must all be of the same type.
-      - Have fixed lengths like Tuples.
-      - Most other languages have mutable array lengths, *not* Rust.
-      - Vectors are homogenous types but can change size.
-      - Useful when allocate to stack rather than heap.
+  - Array
+
+    - Must all be of the same type.
+    - Have fixed lengths like Tuples.
+    - Most other languages have mutable array lengths, _not_ Rust.
+    - Vectors are homogenous types but can change size.
+    - Useful when allocate to stack rather than heap.
 
     ```rust
     // Standard array initialization
@@ -510,8 +535,8 @@ println!("x = {} and y = {}", x, y);
     }
     ```
 
-    - Will get out of bounds if accessing outside of range. (runtime error)
-    - Rust's first example of safety principle: will check the index the user enters and exits program (aka panic). Other low-level languages don't do this check and let you access that invalid physical memory space and continue running.
+  - Will get out of bounds if accessing outside of range. (runtime error)
+  - Rust's first example of safety principle: will check the index the user enters and exits program (aka panic). Other low-level languages don't do this check and let you access that invalid physical memory space and continue running.
 
 ## 3.3 Functions
 
@@ -536,12 +561,14 @@ fn another_function() {
 ```
 
 - Rust is an expression-based language, more distintive versus other languages.
-- *Statements* are instructions that perform some action and do not return a value.
-- *Expressions* evaluate to a resulting value.
-    - Also calling a function, calling a macro, or creating new scopes with {} are examples of expressions.
+- _Statements_ are instructions that perform some action and do not return a value.
+- _Expressions_ evaluate to a resulting value.
+
+  - Also calling a function, calling a macro, or creating new scopes with {} are examples of expressions.
 
 - You can't assign a value to a variable if statements never return a value.
 - Rust is different from Ruby and C where assignment returns the value of the assignment.
+
 ```rust
 // Function definitions are also statements in itself.
 fn main() {
@@ -561,7 +588,7 @@ fn main() {
 ```
 
 - The Y block is an expression because it returns 4.
-- *Expressions do not include ending semicolons*.
+- _Expressions do not include ending semicolons_.
 - If you add a semicolon, it is considered a statement and will not return a value.
 
 ```rust
@@ -580,7 +607,8 @@ fn main() {
 
 - We declare types of the return value but don't name the return values.
 - Just the number 5 is perfectly valid function in Rust.
-    - This is because there's no semicolon so considered and expression, aka it returns that value.
+  - This is because there's no semicolon so considered and expression, aka it returns that value.
+
 ```rust
 // The type of return is defined as i32.
 // Note: no semicolon on 5 makes it an expression.
@@ -623,7 +651,7 @@ fn plus_one(x: i32) -> i32 {
 - Simple comments use `//`
 - For mutiple comments, each line needs double slashes.
 - Convention is usually have d-slashes above when you want to comment.
-    - Possible but not convention: doing inline double slashes to make comments.
+  - Possible but not convention: doing inline double slashes to make comments.
 
 ```rust
 // Normal comment
@@ -695,6 +723,7 @@ fn main() {
     }
 }
 ```
+
 - The if-else arms must have the same type of will give an error.
 - Rust must know the type of the variable at compile time to guarantee type safety.
 - Determining type at runtime is mor complex.
@@ -711,10 +740,11 @@ fn main() {
 ```
 
 - Loops
-    - 3 types: `loop`, `while`, `for`
-    - `break` lets you exit the loop.
-    - Can also supply value to return after break expression.
-    - Notice the ; to end the statement and assigns the value to result.
+
+  - 3 types: `loop`, `while`, `for`
+  - `break` lets you exit the loop.
+  - Can also supply value to return after break expression.
+  - Notice the ; to end the statement and assigns the value to result.
 
     ```rust
     // This runs forever until you push Ctrl + C.
@@ -741,7 +771,7 @@ fn main() {
     ```
 
 - While
-    - Runs until the condition is false.
+  - Runs until the condition is false.
 
 ```rust
 fn main() {
@@ -758,11 +788,11 @@ fn main() {
 ```
 
 - For loops
-    - The most commonly used loops in Rust.
-    - Can also use a while loop to iterate over a collection. This is more error prone if index length is wrong.
-    - Also slower because it has to check conditionals at every iteration.
-    - `Range` is a useful type provided with the standard library if you want to do a countdown.
-    - `rev` also provides a reversed range.
+  - The most commonly used loops in Rust.
+  - Can also use a while loop to iterate over a collection. This is more error prone if index length is wrong.
+  - Also slower because it has to check conditionals at every iteration.
+  - `Range` is a useful type provided with the standard library if you want to do a countdown.
+  - `rev` also provides a reversed range.
 
 ```rust
 // You won't have to track index length.
@@ -784,7 +814,7 @@ fn main() {
 ```
 
 - Summary
-    - You can build small programs to learn:
+  - You can build small programs to learn:
     1. Convert temperatures between Fahrenheit and Celsius.
     2. Generate the nth Fibonacci number.
     3. Print the lyrics to the Christmas carol “The Twelve Days of Christmas,” taking advantage of the repetition in the song.
@@ -796,36 +826,41 @@ fn main() {
 ## 4.1 What is Ownership?
 
 - All programs have to manage computer's memory while running.
-    - Some programs do it while the program is running and other path is the programmer must do it manually.
-    - Rust has ownership with rules that the compiler checks at compile time.
-    - Ownership is a new concept so spend time to undertsand and get good at it.
+
+  - Some programs do it while the program is running and other path is the programmer must do it manually.
+  - Rust has ownership with rules that the compiler checks at compile time.
+  - Ownership is a new concept so spend time to undertsand and get good at it.
 
 - **Stacks and Heaps**
-    - Stacks follow LIFO
-    - We *push* on to the stack and *pop* off the stack.
-    - The data stored on stacks must have a known, fixed size.
-    - The anology is stacking plates.
+
+  - Stacks follow LIFO
+  - We _push_ on to the stack and _pop_ off the stack.
+  - The data stored on stacks must have a known, fixed size.
+  - The anology is stacking plates.
 
 - **Heaps**
-    - Heaps are less organized because of the data size variability.
-    - Space must be requested to fit the data then a pointer must be returned.
-    - *Allocating on the heap* is when you do this assignment process.
-    - The analogy is being seated at a restaurant.
+
+  - Heaps are less organized because of the data size variability.
+  - Space must be requested to fit the data then a pointer must be returned.
+  - _Allocating on the heap_ is when you do this assignment process.
+  - The analogy is being seated at a restaurant.
 
 - **Heaps shortcomings**
-    - Heaps are slower to allocate the data, especially if the data size is big.
-    - Slow to process data because it has to use the point to get there.
-    - It has to keep bookkeeping to prepare for the next allocation.
-    - It must make sure there are no duplicate data, freeing up unused data on the heap, allocating new space if needed.
-    - Ownership aims to solve all the problems of the heap.
+
+  - Heaps are slower to allocate the data, especially if the data size is big.
+  - Slow to process data because it has to use the point to get there.
+  - It has to keep bookkeeping to prepare for the next allocation.
+  - It must make sure there are no duplicate data, freeing up unused data on the heap, allocating new space if needed.
+  - Ownership aims to solve all the problems of the heap.
 
 - **Ownership Rules**
-    - Each value has a variable called its `owner`.
-    - There can only be one owner at a time.
-    - The value is dropped when the owner goes out of scope.
+
+  - Each value has a variable called its `owner`.
+  - There can only be one owner at a time.
+  - The value is dropped when the owner goes out of scope.
 
 - **Variable Scope**
-    - The idea of when `owner` is in scope and not.
+  - The idea of when `owner` is in scope and not.
 
 ```rust
 fn main() {
@@ -840,13 +875,15 @@ fn main() {
 ```
 
 - **The String Type**
-    - We need to use a type more complex than chapter 3.
-    - Strings are not known at compile time, so we need a way to allocate enough space.
-    - String literals are immutable because how it deals with memory.
-    - We use the second string type, `String`. This is allocated to a heap.
-    - Creating a `String` from a string literal: `let s = String::from("hello");`
+
+  - We need to use a type more complex than chapter 3.
+  - Strings are not known at compile time, so we need a way to allocate enough space.
+  - String literals are immutable because how it deals with memory.
+  - We use the second string type, `String`. This is allocated to a heap.
+  - Creating a `String` from a string literal: `let s = String::from("hello");`
 
 - We can mutate this.
+
 ```rust
 fn main() {
     let mut s = String::from("hello");
@@ -858,25 +895,29 @@ fn main() {
 ```
 
 - **Memory and Allocation**
-    - Again, string literals are fast because they are known before compile time and are immutable.
-    - We need to use `String` for unknown data.
-    - It needs to be requested from memory at runtime and the memory needs to be returned with we're done.
+
+  - Again, string literals are fast because they are known before compile time and are immutable.
+  - We need to use `String` for unknown data.
+  - It needs to be requested from memory at runtime and the memory needs to be returned with we're done.
 
 - Rust automatically removes memory allocation at the end of the closing curly brace called `drop`
-    - Historically, other languages with garbage collector (GC), we have to pair an allocate with exactly a free.
-    - In C++, this pattern is called *Resource Aquisition Is Initialization (RAII).
+
+  - Historically, other languages with garbage collector (GC), we have to pair an allocate with exactly a free.
+  - In C++, this pattern is called \*Resource Aquisition Is Initialization (RAII).
 
 - **Ways Variables and Data Interact: Move**
-    - The Basic example is easy because it is a copy by value, not by reference.
 
-    - String example is a copy by reference.
-    - The pointer, length, and capacity is actually being copied from the String type of "hello".
-    - It can be though of as a *shallow copy*, or a *move* in Rust terms.
-    - Not actually copying the values of the String "hello" to a new memory block (aka *deep copy*).
-    - The code below will cause an error because of *double free error*.
+  - The Basic example is easy because it is a copy by value, not by reference.
 
-    - Rust will never make deep copies unless you tell it to.
-    - Automatic copies are assumed to be inexpensive for performance.
+  - String example is a copy by reference.
+  - The pointer, length, and capacity is actually being copied from the String type of "hello".
+  - It can be though of as a _shallow copy_, or a _move_ in Rust terms.
+  - Not actually copying the values of the String "hello" to a new memory block (aka _deep copy_).
+  - The code below will cause an error because of _double free error_.
+
+  - Rust will never make deep copies unless you tell it to.
+  - Automatic copies are assumed to be inexpensive for performance.
+
 ```rust
 fn main() {
     // Basic Example
@@ -890,21 +931,24 @@ fn main() {
 ```
 
 - **Ways Variables and Data Interact: Clone**
-    - Using `clone` will make a deep copy.
-    - Considered expensive operation.
+
+  - Using `clone` will make a deep copy.
+  - Considered expensive operation.
 
 - **Stack-Only Data: Copy**
-    - We can use `Copy` trait for types like integers that need to go on the stack.
-    - The following types implement the `Copy` trait and is still usuable after the assignment.
-    - Types:
-       1. All the integer types, such as u32.
-        2. The Boolean type, bool, with values true and false.
-        3. All the floating point types, such as f64.
-        4. The character type, char.
-        5. Tuples, if they only contain types that also implement Copy. For example, (i32, i32) implements Copy, but (i32, String) does not.
+
+  - We can use `Copy` trait for types like integers that need to go on the stack.
+  - The following types implement the `Copy` trait and is still usuable after the assignment.
+  - Types:
+    1. All the integer types, such as u32.
+    2. The Boolean type, bool, with values true and false.
+    3. All the floating point types, such as f64.
+    4. The character type, char.
+    5. Tuples, if they only contain types that also implement Copy. For example, (i32, i32) implements Copy, but (i32, String) does not.
 
 - **Onwership and Functions**
-    - Notice a `move` has a `drop` called later
+  - Notice a `move` has a `drop` called later
+
 ```rust
 fn main() {
     let s = String::from("hello");  // s comes into scope
@@ -931,8 +975,9 @@ fn makes_copy(some_integer: i32) { // some_integer comes into scope
 ```
 
 - **Return Values and Scope**
-    - You can also pass ownership by returning it and assigning it to a variable.
-    - You can also use tuples to return back data.
+  - You can also pass ownership by returning it and assigning it to a variable.
+  - You can also use tuples to return back data.
+
 ```rust
 fn main() {
     let s1 = gives_ownership();         // gives_ownership moves its return
@@ -967,6 +1012,7 @@ fn takes_and_gives_back(a_string: String) -> String { // a_string comes into
 
 - Using tuples in return data.
 - We have something easier for all this called `references`.
+
 ```rust
 fn main() {
     let s1 = String::from("hello");
@@ -985,14 +1031,14 @@ fn calculate_length(s: String) -> (String, usize) {
 
 ## 4.2 References and Borrowing
 
-- Now we are going to use *references* by using ampersands `&`.
-    - *references* are refering to some value without taking ownership of it.
-    - *dereferencing* uses `*`. In chapter 8 and 15.
-    - In the previous section code, we have to return the variable to pass the ownership back to the variable to be used in the string println.
-    - Now this new code with reference is different.
-        - We don't have a tuple for the variable name.
-        - We pass in `&s1` to the `calculate_length` function. The function takes in `&String`.
-        - The return in the function is gone.
+- Now we are going to use _references_ by using ampersands `&`.
+  - _references_ are refering to some value without taking ownership of it.
+  - _dereferencing_ uses `*`. In chapter 8 and 15.
+  - In the previous section code, we have to return the variable to pass the ownership back to the variable to be used in the string println.
+  - Now this new code with reference is different.
+    - We don't have a tuple for the variable name.
+    - We pass in `&s1` to the `calculate_length` function. The function takes in `&String`.
+    - The return in the function is gone.
 
 ```rust
 fn main() {
@@ -1012,10 +1058,10 @@ fn calculate_length(s: &String) -> usize {
 ```
 
 - **Borrowing**
-    - This is the idea of having references as function parameters is *borrowing*.
-    - One can't modify something we are borrowing either!
-    - Like *variables* are immutable by default, *references* are the same.
-    - However, there is only 1 way to get around this.
+  - This is the idea of having references as function parameters is _borrowing_.
+  - One can't modify something we are borrowing either!
+  - Like _variables_ are immutable by default, _references_ are the same.
+  - However, there is only 1 way to get around this.
 
 ```rust
 // You can't modify a reference you borrow!
@@ -1049,10 +1095,10 @@ fn change(some_string: &mut String) {
 
 - There can only be one mutable reference to a piece of data in a particular scope.
 - This restriction helps keep the mutations in a controlled fashion.
-- It helps prevent *data race conditions* because Rust doesn't even compil code with data races.
-    1. When 2 pointers or more try to access the same data.
-    2. When 1 of the pointer is being written with data.
-    3. No mechanism to synchronize access to the data.
+- It helps prevent _data race conditions_ because Rust doesn't even compil code with data races.
+  1. When 2 pointers or more try to access the same data.
+  2. When 1 of the pointer is being written with data.
+  3. No mechanism to synchronize access to the data.
 
 ```rust
 // Example 1 Error
@@ -1081,6 +1127,7 @@ fn main() {
 
 - However, this is okay because we use the data before we try to mutate it.
 - Or we give it its own scope.
+
 ```rust
 // Use the reference before mutating it is okay.
 fn main() {
@@ -1108,9 +1155,9 @@ fn main() {
 ```
 
 - **Dangling References**
-- A *dangling pointer* is where the pointer to the location in memory may be given to something else. Basically, pointing to something that was freed from memory or something we are not expecting.
-    - Rust also guarantees that the data will not go out of scope before the reference to the data does.
-    - There's something called *lifetime* but that's in chapter 10.
+- A _dangling pointer_ is where the pointer to the location in memory may be given to something else. Basically, pointing to something that was freed from memory or something we are not expecting.
+  - Rust also guarantees that the data will not go out of scope before the reference to the data does.
+  - There's something called _lifetime_ but that's in chapter 10.
 
 ```rust
 fn main() {
@@ -1139,11 +1186,137 @@ fn dangle() -> String {
 ```
 
 -**Summary**
-- You can have unlimited immutable references but *only *one mutable reference*.
+
+- You can have unlimited immutable references but _only_ one mutable reference\*.
+
 - References must always be pointed correctly and valid.
 
 ## 4.3 The Slice Type
 
+- _slice_ allows referencing of a contiguous sequence of elements in a collection.
+
+- The main problem with this example is that `word` will change after we do the `s.clear()`.
+- In other words, the index in `word` might get out of sync with the data in `s`.
+- Even though the value 5 still exists for `word`, it doesn't mean anything if `s` is now equal to "". There's nothing useful we can do with the value.
+
+```rust
+// We want to reference only the first word in the string.
+// &String is a reference to the position allocation of the string.
+// usize is used for index in a collection.
+fn first_word(s: &String) -> usize {
+    // Need to convert the string into array of bytes so we can loop.
+    let bytes = s.as_bytes();
+
+    // Loops through the bytes using iter() method.
+    // enumerate() wraps results of each iteration and returns as a tuple.
+    // i is the index and &item (a single byte) is the reference to the element.
+    for (i, &item) in bytes.iter().enumerate() {
+        // Now we search each item if it's an empty space, ' '.
+        // The b represents byte?
+        // Return the index of the empty space.
+        // Counts from zero index.
+        if item == b' ' {
+            return i;
+        }
+    }
+
+    // If nothing is found, return the string length.
+    s.len()
+}
+
+fn main() {
+    let mut s = String::from("hello world");
+
+    let _word = first_word(&s); // word will get the value 5
+
+    s.clear(); // this empties the String, making it equal to ""
+
+    // word still has the value 5 here, but there's no more string that
+    // we could meaningfully use the value 5 with. word is now totally invalid!
+}
+```
+
 - **String Slices**
 
+- Allows you to slice the strings in different ways.
+- For this chapter, we assume that the string has valid UTF-8 character boundaries.
+- If you attempt to create a string slice in the middle of a multibyte character, your program will exit with an error.
+
+```rust
+fn main() {
+    let s = String::from("hello world");
+
+    // Method 1: Inclusive starting_index and exclusive ending_index.
+    let hello = &s[0..5];
+    let world = &s[6..11];
+
+    // Method 2: Not including the starting_index. Means start at 0.
+    let slice = &s[0..2];
+    let slice = &s[..2];
+
+    // Method 3: Dropping the ending_index.
+    let len = s.len();
+
+    let slice = &s[3..len];
+    let slice = &s[3..];
+
+    // Method 4: Dropping both starting_index and ending_index.
+    let slice = &s[0..len];
+    let slice = &s[..];
+}
+
+```
+
+- This is the best way to write the method.
+  - We use `&str` reference instead of &String and being able to take both String and str.
+  - `&s[0..i]` gives you a slice of the string instead of just an index like before.
+  - `&my_string[..]` is where we pass in the a slice (effectively a copy) of the whole string.
+  - So with all this, we don't worry about the reference, `my_string`, changing or getting out of sync.
+
+```rust
+fn first_word(s: &str) -> &str {
+    let bytes = s.as_bytes();
+
+    for (i, &item) in bytes.iter().enumerate() {
+        if item == b' ' {
+            return &s[0..i];
+        }
+    }
+
+    &s[..]
+}
+
+fn main() {
+    let my_string = String::from("hello world");
+
+    // first_word works on slices of `String`s
+    let word = first_word(&my_string[..]);
+
+    let my_string_literal = "hello world";
+
+    // first_word works on slices of string literals
+    let word = first_word(&my_string_literal[..]);
+
+    // Because string literals *are* string slices already,
+    // this works too, without the slice syntax!
+    let word = first_word(my_string_literal);
+}
+```
+
 - **Other Slices**
+
+- We can also slice arrays like so:
+
+```rust
+fn main() {
+    let a = [1, 2, 3, 4, 5];
+
+    let slice = &a[1..3];
+
+    assert_eq!(slice, &[2, 3]);
+}
+```
+
+- **Summary**
+
+- Using ownership, borrowing, and slices helps ensure memory safety in Rust programs at compile time.
