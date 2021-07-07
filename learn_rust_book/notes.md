@@ -821,46 +821,47 @@ fn main() {
 
 # 4.0 Understanding Ownership
 
-- Allows Rust to make memory safety guarantees without needing garbage collector.
+- Allows Rust to make memory safety guarantees without needing a garbage collector.
 
 ## 4.1 What is Ownership?
 
 - All programs have to manage computer's memory while running.
 
-  - Some programs do it while the program is running and other path is the programmer must do it manually.
+  - Some programs do it while the program is running or the programmer must do it manually.
   - Rust has ownership with rules that the compiler checks at compile time.
-  - Ownership is a new concept so spend time to undertsand and get good at it.
+  - Ownership is a new concept so spend time to understand and to get good at it.
 
 - **Stacks and Heaps**
 
-  - Stacks follow LIFO
+  - Stacks follow LIFO.
   - We _push_ on to the stack and _pop_ off the stack.
   - The data stored on stacks must have a known, fixed size.
-  - The anology is stacking plates.
+  - The anology is like stacking plates.
 
 - **Heaps**
 
+  - Heaps follow FIFO.
   - Heaps are less organized because of the data size variability.
   - Space must be requested to fit the data then a pointer must be returned.
   - _Allocating on the heap_ is when you do this assignment process.
-  - The analogy is being seated at a restaurant.
+  - The analogy is like being seated at a restaurant.
 
 - **Heaps shortcomings**
 
   - Heaps are slower to allocate the data, especially if the data size is big.
-  - Slow to process data because it has to use the point to get there.
-  - It has to keep bookkeeping to prepare for the next allocation.
+  - Slow to access the data because it has to use the pointer to get there.
+  - It has to bookkeep to prepare for the next allocation.
   - It must make sure there are no duplicate data, freeing up unused data on the heap, allocating new space if needed.
   - Ownership aims to solve all the problems of the heap.
 
 - **Ownership Rules**
 
-  - Each value has a variable called its `owner`.
+  - Each value has a variable called its _owner_.
   - There can only be one owner at a time.
   - The value is dropped when the owner goes out of scope.
 
 - **Variable Scope**
-  - The idea of when `owner` is in scope and not.
+  - The idea of when _owner_ is in scope and not.
 
 ```rust
 fn main() {
@@ -876,13 +877,14 @@ fn main() {
 
 - **The String Type**
 
-  - We need to use a type more complex than chapter 3.
-  - Strings are not known at compile time, so we need a way to allocate enough space.
+  - We need to use a type more complex than chapter 3's string literal.
+  - Strings, the type, are not known at compile time, so we need a way to allocate enough space.
   - String literals are immutable because how it deals with memory.
   - We use the second string type, `String`. This is allocated to a heap.
   - Creating a `String` from a string literal: `let s = String::from("hello");`
 
-- We can mutate this.
+- We can mutate this String type now after converting from string literal to the String type.
+- Remember that string literals are immutable at compile time.
 
 ```rust
 fn main() {
@@ -897,36 +899,42 @@ fn main() {
 - **Memory and Allocation**
 
   - Again, string literals are fast because they are known before compile time and are immutable.
-  - We need to use `String` for unknown data.
+  - We need to use the `String` type for unknown data.
+
   - It needs to be requested from memory at runtime and the memory needs to be returned with we're done.
+  - Rust automatically removes memory allocation at the end of the closing curly brace by calling `drop`.
 
-- Rust automatically removes memory allocation at the end of the closing curly brace called `drop`
-
-  - Historically, other languages with garbage collector (GC), we have to pair an allocate with exactly a free.
-  - In C++, this pattern is called \*Resource Aquisition Is Initialization (RAII).
+  - Historically, other languages with garbage collector (GC), we have to pair an _allocate_ in exact amounts of _free_.
+  - In C++, this pattern is called _Resource Aquisition Is Initialization_ (RAII).
 
 - **Ways Variables and Data Interact: Move**
 
-  - The Basic example is easy because it is a copy by value, not by reference.
+  - The basic string literal is easy because it is a copy by value, not by reference.
+  - A String type is a copy by reference in my understanding.
 
-  - String example is a copy by reference.
-  - The pointer, length, and capacity is actually being copied from the String type of "hello".
+  - The pointer, length, and capacity is actually being copied from the String type of "hello". This data group is stored on the stack.
   - It can be though of as a _shallow copy_, or a _move_ in Rust terms.
   - Not actually copying the values of the String "hello" to a new memory block (aka _deep copy_).
   - The code below will cause an error because of _double free error_.
 
   - Rust will never make deep copies unless you tell it to.
-  - Automatic copies are assumed to be inexpensive for performance.
+  - Any "automatic copies" are assumed to be inexpensive for runtime performance.
 
 ```rust
 fn main() {
-    // Basic Example
+    // Move example
+    // A shallow copy which is inexpensive.
     // let x = 5;
     // let y = x;
 
     // String Example
+    // s1 was moved into s2.
+    // Will cause error because s1 was borrowed.
+    // Error: move occurs because `s1` has type `String`, which does not implement the `Copy`
     let s1 = String::from("hello");
     let s2 = s1;
+
+    println!("{}, world!", s1);
 }
 ```
 
@@ -934,11 +942,22 @@ fn main() {
 
   - Using `clone` will make a deep copy.
   - Considered expensive operation.
+  - This is what we actually wanted to do.
+
+  ```rust
+  // Clone is a deep copy.
+  fn main() {
+      let s1 = String::from("hello");
+      let s2 = s1.clone();
+
+      println!("s1 = {}, s2 = {}", s1, s2);
+  }
+  ```
 
 - **Stack-Only Data: Copy**
 
-  - We can use `Copy` trait for types like integers that need to go on the stack.
-  - The following types implement the `Copy` trait and is still usuable after the assignment.
+  - We can use _Copy_ trait for types like integers that need to go on the stack.
+  - The following types implement the _Copy_ trait and is still usuable after the assignment.
   - Types:
     1. All the integer types, such as u32.
     2. The Boolean type, bool, with values true and false.
@@ -948,6 +967,7 @@ fn main() {
 
 - **Onwership and Functions**
   - Notice a `move` has a `drop` called later
+  - The main takeaway is that things go out of scope when ownership is passed.
 
 ```rust
 fn main() {
@@ -959,7 +979,7 @@ fn main() {
     let x = 5;                      // x comes into scope
 
     makes_copy(x);                  // x would move into the function,
-                                    // but i32 is Copy, so it's okay to still
+                                    // but i32 is a Copy, so it's okay to still
                                     // use x afterward
 } // Here, x goes out of scope, then s. But because s's value was moved, nothing
   // special happens.
@@ -977,6 +997,8 @@ fn makes_copy(some_integer: i32) { // some_integer comes into scope
 - **Return Values and Scope**
   - You can also pass ownership by returning it and assigning it to a variable.
   - You can also use tuples to return back data.
+  - Tuples are not the best way as we'll learn later.
+  - Items only go out of scopes if ownership is not moved.
 
 ```rust
 fn main() {
@@ -1033,12 +1055,12 @@ fn calculate_length(s: String) -> (String, usize) {
 
 - Now we are going to use _references_ by using ampersands `&`.
   - _references_ are refering to some value without taking ownership of it.
-  - _dereferencing_ uses `*`. In chapter 8 and 15.
+  - _dereferencing_ uses `*`. See chapter 8 and 15.
   - In the previous section code, we have to return the variable to pass the ownership back to the variable to be used in the string println.
   - Now this new code with reference is different.
     - We don't have a tuple for the variable name.
     - We pass in `&s1` to the `calculate_length` function. The function takes in `&String`.
-    - The return in the function is gone.
+    - The return in the function is gone also.
 
 ```rust
 fn main() {
@@ -1060,11 +1082,11 @@ fn calculate_length(s: &String) -> usize {
 - **Borrowing**
   - This is the idea of having references as function parameters is _borrowing_.
   - One can't modify something we are borrowing either!
-  - Like _variables_ are immutable by default, _references_ are the same.
+  - Like _variables_ are immutable by default, _references_ are also immutable.
   - However, there is only 1 way to get around this.
 
 ```rust
-// You can't modify a reference you borrow!
+// Error: you can't modify a reference you borrow!
 fn main() {
     let s = String::from("hello");
 
@@ -1078,6 +1100,7 @@ fn change(some_string: &String) {
 
 - **Mutable References**
 - We can mutate the reference by using `&mut`.
+- Can only have max one mutable reference per scope!
 
 ```rust
 fn main() {
@@ -1094,8 +1117,8 @@ fn change(some_string: &mut String) {
 ```
 
 - There can only be one mutable reference to a piece of data in a particular scope.
-- This restriction helps keep the mutations in a controlled fashion.
-- It helps prevent _data race conditions_ because Rust doesn't even compil code with data races.
+- This restriction helps keep the mutation handled in a controlled fashion.
+- It helps prevent _data race conditions_ because Rust doesn't even compile code with data races.
   1. When 2 pointers or more try to access the same data.
   2. When 1 of the pointer is being written with data.
   3. No mechanism to synchronize access to the data.
@@ -1119,14 +1142,14 @@ fn main() {
     // Users of an immutable reference don’t expect the values to suddenly change out from under them!
     let r1 = &s; // no problem
     let r2 = &s; // no problem
-    let r3 = &mut s; // BIG PROBLEM
+    let r3 = &mut s; // BIG PROBLEM: we change the reference right before we print out the value.
 
     println!("{}, {}, and {}", r1, r2, r3);
 }
 ```
 
 - However, this is okay because we use the data before we try to mutate it.
-- Or we give it its own scope.
+- Or we can give it its own scope.
 
 ```rust
 // Use the reference before mutating it is okay.
@@ -1187,7 +1210,7 @@ fn dangle() -> String {
 
 -**Summary**
 
-- You can have unlimited immutable references but _only_ one mutable reference\*.
+- You can have unlimited immutable references but _only_ one mutable reference.
 
 - References must always be pointed correctly and valid.
 
@@ -1197,7 +1220,8 @@ fn dangle() -> String {
 
 - The main problem with this example is that `word` will change after we do the `s.clear()`.
 - In other words, the index in `word` might get out of sync with the data in `s`.
-- Even though the value 5 still exists for `word`, it doesn't mean anything if `s` is now equal to "". There's nothing useful we can do with the value.
+- Even though the value 5 still exists for `word`, it doesn't mean anything if `s` is now equal to "".
+- There's nothing useful we can do with the value.
 
 ```rust
 // We want to reference only the first word in the string.
@@ -1246,6 +1270,8 @@ fn main() {
 fn main() {
     let s = String::from("hello world");
 
+    let len = s.len();
+
     // Method 1: Inclusive starting_index and exclusive ending_index.
     let hello = &s[0..5];
     let world = &s[6..11];
@@ -1255,8 +1281,6 @@ fn main() {
     let slice = &s[..2];
 
     // Method 3: Dropping the ending_index.
-    let len = s.len();
-
     let slice = &s[3..len];
     let slice = &s[3..];
 
@@ -1271,7 +1295,7 @@ fn main() {
   - We use `&str` reference instead of &String and being able to take both String and str.
   - `&s[0..i]` gives you a slice of the string instead of just an index like before.
   - `&my_string[..]` is where we pass in the a slice (effectively a copy) of the whole string.
-  - So with all this, we don't worry about the reference, `my_string`, changing or getting out of sync.
+  - Now we don't worry about the reference, `my_string`, changing or getting out of sync.
 
 ```rust
 fn first_word(s: &str) -> &str {

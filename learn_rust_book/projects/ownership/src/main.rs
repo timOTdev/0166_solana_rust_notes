@@ -1,10 +1,10 @@
-// // A Move. Causes error, not a deep copy.
-// fn main() {
-//     let s1 = String::from("hello");
-//     let s2 = s1;
+// A Move. Causes error, not a deep copy.
+fn main() {
+    let s1 = String::from("hello");
+    let s2 = s1;
 
-//     println!("{}, world!", s1);
-// }
+    println!("{}, world!", s1);
+}
 
 
 
@@ -184,30 +184,30 @@
 
 
 
-// Getting first word (Compiles but does not Error when ran)
-fn first_word(s: &String) -> usize {
-    let bytes = s.as_bytes();
+// // Getting first word (Compiles but does not Error when ran)
+// fn first_word(s: &String) -> usize {
+//     let bytes = s.as_bytes();
 
-    for (i, &item) in bytes.iter().enumerate() {
-        if item == b' ' {
-            return i;
-        }
-    }
+//     for (i, &item) in bytes.iter().enumerate() {
+//         if item == b' ' {
+//             return i;
+//         }
+//     }
 
-    s.len()
-}
+//     s.len()
+// }
 
-// Running this will error!
-fn main() {
-    let mut s = String::from("hello world");
+// // Running this will error!
+// fn main() {
+//     let mut s = String::from("hello world");
 
-    let _word = first_word(&s); // word will get the value 5
+//     let _word = first_word(&s); // word will get the value 5
 
-    s.clear(); // this empties the String, making it equal to ""
+//     s.clear(); // this empties the String, making it equal to ""
 
-    // word still has the value 5 here, but there's no more string that
-    // we could meaningfully use the value 5 with. word is now totally invalid!
-}
+//     // word still has the value 5 here, but there's no more string that
+//     // we could meaningfully use the value 5 with. word is now totally invalid!
+// }
 
 
 
