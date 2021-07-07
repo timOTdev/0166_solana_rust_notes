@@ -1344,3 +1344,171 @@ fn main() {
 - **Summary**
 
 - Using ownership, borrowing, and slices helps ensure memory safety in Rust programs at compile time.
+
+# 5.0 Using Structs to Structure Related Data
+
+- A _struct_ or structure is a custom data type that lets you name and package together multiple related values that make up a meaningful group.
+
+## 5.1 Defining and Instantiating Structs
+
+- _structs_ are like C# or Javascript classes to me. You can also think of it as a template or scaffold.
+- _fields_ are like the members of a class to me.
+- We make _instances_ of a struct to use it.
+  - Don't have to specify the fields fields in the same order as the struct.
+
+```rust
+struct User {
+    username: String,
+    email: String,
+    sign_in_count: u64,
+    active: bool,
+}
+
+fn main() {
+    let user1 = User {
+        email: String::from("someone@example.com"),
+        username: String::from("someusername123"),
+        active: true,
+        sign_in_count: 1,
+    };
+}
+```
+
+- **Changing specific values of Struct**
+
+  - Use dot notation.
+  - All the fields are mutable by default, you can't select just one.
+
+```rust
+struct User {
+    username: String,
+    email: String,
+    sign_in_count: u64,
+    active: bool,
+}
+
+fn main() {
+    let mut user1 = User {
+        email: String::from("someone@example.com"),
+        username: String::from("someusername123"),
+        active: true,
+        sign_in_count: 1,
+    };
+
+    user1.email = String::from("anotheremail@example.com");
+}
+
+fn build_user(email: String, username: String) -> User {
+    User {
+        email: email,
+        username: username,
+        active: true,
+        sign_in_count: 1,
+    }
+}
+```
+
+- **Field Init Shorthand**
+
+  - Fields are like in javascript where you don't have to repeat the key and the value name.
+  - Write `email` rather than `email: email`.
+  - Just write it once:
+
+  ```rust
+  // Shorthand where we don't have to write key and value names.
+  // It's inferred.
+  User {
+    email,
+    username,
+    active: true,
+    sign_in_count: 1,
+  }
+  ```
+
+- **Struct Update Syntax**
+
+  - Use the same fields from user1, now in user2
+
+  ```rust
+  struct User {
+      username: String,
+      email: String,
+      sign_in_count: u64,
+      active: bool,
+  }
+
+  fn main() {
+      let user1 = User {
+          email: String::from("someone@example.com"),
+          username: String::from("someusername123"),
+          active: true,
+          sign_in_count: 1,
+      };
+
+      // Notice how we use user.active and user1.sign_in_count here.
+      let user2 = User {
+          email: String::from("another@example.com"),
+          username: String::from("anotherusername567"),
+          active: user1.active,
+          sign_in_count: user1.sign_in_count,
+      };
+
+      // Even cleaner using syntax `..`
+      // Has the same values for the active and sign_in_count fields from user1
+      let user2 = User {
+        email: String::from("another@example.com"),
+        username: String::from("anotherusername567"),
+        ..user1
+    };
+  }
+  ```
+
+- **Using Tuple Structs without Named Fields to Create Different Types**
+
+  - _Tuple structs_ are like structs but just has the types of the fields and not the member key name.
+  - We still have to use two separate structs here even though the field pattern of `i32` is the same in both.
+  - Just useful when we want to make different struct types but just have different names.
+  - You can't substitute Color and Struct, they are different!
+  - Use dot notation to access field values.
+
+  ```rust
+  fn main() {
+      struct Color(i32, i32, i32);
+      struct Point(i32, i32, i32);
+
+      let black = Color(0, 0, 0);
+      let origin = Point(0, 0, 0);
+  }
+  ```
+
+- **Unit-Like Structs Without Any Fields**
+
+  - _Unit-like structs_ are structs that don't have any fields.
+  - Useful to implement trait on some type but don't have any data to store on it. Don't understand this yet...see chapter 10.
+
+- **Ownership of Struct Data**
+
+  - This example won't work without understanding lifetimes.
+  - _Lifetimes_ ensures that the data lasts as long as the struct does.
+
+    ```rust
+    struct User {
+    username: &str,
+    email: &str,
+    sign_in_count: u64,
+    active: bool,
+    }
+
+    fn main() {
+        let user1 = User {
+            email: "someone@example.com",
+            username: "someusername123",
+            active: true,
+            sign_in_count: 1,
+        };
+    }
+    ```
+
+## 5.2 An Example Program Using Structs
+
+## 5.3 Method Syntax
