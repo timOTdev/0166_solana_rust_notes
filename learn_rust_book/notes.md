@@ -1511,4 +1511,226 @@ fn build_user(email: String, username: String) -> User {
 
 ## 5.2 An Example Program Using Structs
 
+- We want to use struct to give more clarity to our code.
+- Using multiple arguments or a tuple to an function argument is suffcient.
+- We can do better, use a struct.
+
+- This is the basic way to write our feature.
+- Doesn't tell you about the relationship of the 2 variables.
+
+```rust
+fn main() {
+    let width1 = 30;
+    let height1 = 50;
+
+    println!(
+        "The area of the rectangle is {} square pixels.",
+        area(width1, height1)
+    );
+}
+
+fn area(width: u32, height: u32) -> u32 {
+    width * height
+}
+```
+
+- **Refactoring with Tuples**
+
+  - Tuples allows a pairing of the width and length value but there are some confusing parts.
+  - Don't know which from which index in the tuple represents which variable.
+  - Accessing index 0 and 1 is not very helpful either.
+
+    ```rust
+    fn main() {
+        let rect1 = (30, 50);
+
+        println!(
+            "The area of the rectangle is {} square pixels.",
+            area(rect1)
+        );
+    }
+
+    fn area(dimensions: (u32, u32)) -> u32 {
+        dimensions.0 * dimensions.1
+    }
+    ```
+
+- **Refactoring with Structs: Adding More Meaning**
+
+  - This is the best way to write it.
+
+    ```rust
+    struct Rectangle {
+        width: u32,
+        height: u32,
+    }
+
+    fn main() {
+        let rect1 = Rectangle {
+            width: 30,
+            height: 50,
+        };
+
+        // We are using an immutable borrow of the Rectangle struct.
+        println!(
+            "The area of the rectangle is {} square pixels.",
+            area(&rect1)
+        );
+    }
+
+    fn area(rectangle: &Rectangle) -> u32 {
+        rectangle.width * rectangle.height
+    }
+    ```
+
+- **Adding Useful Functionality with Derived Traits**
+
+  - How do we see the struct we created?
+  - Use `{:?}` or `{:#?}` with annotation `#[derive(Debug)]`
+  - `{:?}` - normal print
+  - `{:#?}` - pretty print
+  - println! macro won't work here because only work on primitives.
+  - We also have to opt into the debug functionality with the annotation.
+
+    ```rust
+    #[derive(Debug)]
+    struct Rectangle {
+        width: u32,
+        height: u32,
+    }
+
+    fn main() {
+        let rect1 = Rectangle {
+            width: 30,
+            height: 50,
+        };
+
+        println!("rect1 is {:?}", rect1);
+    }
+    ```
+
 ## 5.3 Method Syntax
+
+- Methods are basically functions within a struct.
+- It helps with organization because all methods implemented under one `impl` block.
+
+- **Defining Methods**
+
+  - Methods can take ownership of `self` or borrow `self` mutably.
+  - If we generally want to read data, just use `&` reference.
+
+```rust
+#[derive(Debug)]
+// We make a struct.
+struct Rectangle {
+    width: u32,
+    height: u32,
+}
+
+// Then we add a method onto the struct.
+// Use impl, aka implementation, to add the method.
+impl Rectangle {
+    // &self refers to Rectangle
+    fn area(&self) -> u32 {
+        self.width * self.height
+    }
+}
+
+fn main() {
+    let rect1 = Rectangle {
+        width: 30,
+        height: 50,
+    };
+
+    // Calls the area method from the rect1 struct.
+    println!(
+        "The area of the rectangle is {} square pixels.",
+        rect1.area()
+    );
+}
+```
+
+- **Where's the -> Operator?**
+
+  - Rust doesn't have `.`or `->` where we have to dereference the pointer first.
+  - Rust has _automatic referencing and dereferencing_ where it figures out to autically add `&`, `&mut`, or `*`.
+  - Automatic referencing works because methods have a clear receive, the type of `self`.
+
+  ```rust
+  // These are equal. First is cleaner.
+  p1.distance(&p2);
+  (&p1).distance(&p2);
+  ```
+
+- **Methods with More Parameters**
+
+  - We implement 2 methods here: area and can_hold.
+
+  ```rust
+  #[derive(Debug)]
+  struct Rectangle {
+      width: u32,
+      height: u32,
+  }
+
+  impl Rectangle {
+      fn area(&self) -> u32 {
+          self.width * self.height
+      }
+
+      // Can take in additional arguments.
+      fn can_hold(&self, other: &Rectangle) -> bool {
+          self.width > other.width && self.height > other.height
+      }
+  }
+
+  fn main() {
+      let rect1 = Rectangle {
+          width: 30,
+          height: 50,
+      };
+      let rect2 = Rectangle {
+          width: 10,
+          height: 40,
+      };
+      let rect3 = Rectangle {
+          width: 60,
+          height: 45,
+      };
+
+      println!("Can rect1 hold rect2? {}", rect1.can_hold(&rect2));
+      println!("Can rect1 hold rect3? {}", rect1.can_hold(&rect3));
+  }
+  ```
+
+- **Associated Functions**
+
+  - Associated Functions don't take a `self` as a parameter and "associated" with the struct.
+  - Often used for constructors.
+  - Accessed through `::` syntax like `Rectangle::square(3);`
+
+  ```rust
+  #[derive(Debug)]
+  struct Rectangle {
+      width: u32,
+      height: u32,
+  }
+
+  impl Rectangle {
+      fn square(size: u32) -> Rectangle {
+          Rectangle {
+              width: size,
+              height: size,
+          }
+      }
+  }
+
+  fn main() {
+      let sq = Rectangle::square(3);
+  }
+
+  ```
+
+- **Multiple impl Blocks**
+
+  - It's valid syntax to have 2 separate impl blocks but not common practice.
