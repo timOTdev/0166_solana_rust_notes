@@ -1734,3 +1734,354 @@ fn main() {
 - **Multiple impl Blocks**
 
   - It's valid syntax to have 2 separate impl blocks but not common practice.
+
+# 6.0 Enums and Pattern Matching
+
+- _Enum_ allow you to make a type with all its possible variants.
+- This helps give meaning with your data.
+- _Option_ lets you express a value that is something or none.
+- Enums in Rust are similar to algebraic data types in functional languages like F#, OCaml, and Haskell.
+
+## 6.1 Defining an Enum
+
+- **Defining an Enum**
+
+  - We can specify 2 specific types like in case of IP addresses: V4 or V6.
+  - Its variants can only be one of the two.
+  - Using enums means we are making a "custom struct" but with more flexibility.
+
+    ```rust
+    fn main() {
+      // IpAddrKind is termed the kind.
+      // Two options are termed variants.
+      enum IpAddrKind {
+          V4,
+          V6,
+      }
+
+      // A struct to incorporate an enum too.
+      struct IpAddr {
+          kind: IpAddrKind,
+          address: String,
+      }
+
+      let home = IpAddr {
+          kind: IpAddrKind::V4,
+          address: String::from("127.0.0.1"),
+      };
+
+      let loopback = IpAddr {
+          kind: IpAddrKind::V6,
+          address: String::from("::1"),
+      };
+    }
+    ```
+
+    - Here is the same code but more concise and exactly the same features.
+    - This helps eliminate the extra struct.
+
+    ```rust
+    fn main() {
+        enum IpAddr {
+            V4(String),
+            V6(String),
+        }
+
+        let home = IpAddr::V4(String::from("127.0.0.1"));
+
+        let loopback = IpAddr::V6(String::from("::1"));
+    }
+    ```
+
+- **Enum Values**
+
+  - Enums can also have variants of different types and amounts of data.
+  - You can put in strings, numerics, structs, and even other enums.
+
+    ```rust
+    enum IpAddr {
+        V4(u8, u8, u8, u8),
+        V6(String),
+    }
+
+    // The standard library already has IP4 and IP6 variants since it's so common.
+    enum IpAddr {
+        V4(Ipv4Addr),
+        V6(Ipv6Addr),
+    }
+    ```
+
+  - You can write enums just like struct.
+  - Enums can also have methods just like struct's.
+
+    ```rust
+    // Written as enums.
+    enum Message {
+        Quit,
+        Move { x: i32, y: i32 },
+        Write(String),
+        ChangeColor(i32, i32, i32),
+    }
+
+    // The same thing written as struct's
+    struct QuitMessage; // unit struct
+    struct MoveMessage {
+        x: i32,
+        y: i32,
+    }
+    struct WriteMessage(String); // tuple struct
+    struct ChangeColorMessage(i32, i32, i32); // tuple struct
+
+    // Method implementation just like with struct's.
+    fn main() {
+      enum Message {
+          Quit,
+          Move { x: i32, y: i32 },
+          Write(String),
+          ChangeColor(i32, i32, i32),
+      }
+
+      impl Message {
+          fn call(&self) {
+              // method body would be defined here
+          }
+      }
+
+      let m = Message::Write(String::from("hello"));
+      m.call();
+    }
+    ```
+
+- **The Option Enum and Its Advantages Over Null Values**
+
+  - Many languages have `null`, which means there's no value there.
+  - Rust does not have null but uses Option Enum instead.
+  - I think of Option Enum like a built in null type checker so we don't have to run null checks.
+  - We know there's a value and it's valid.
+
+  - The standard library has `Option<T>` and so common that it's included in the prelude by default.
+  - `<T>` just means the generic type. More on chapter 10.
+  - FYI, you have to extract/convert `T` from the Option before you can use it.
+
+  - Option Enum has only `Some` or `None` variants.
+  - `Some` just means there's a value and it's held inside.
+  - `None` means there is not value, basically null.
+
+  - The ways to convert `Option<T>` to `T` are numerous. Check the documentation.
+  - But we need to handle how to handle different types of the variants.
+  - Using `match` is a good way to do this.
+
+  ```rust
+  // This will error because Rust doesn't know
+  // how to add i8 + Option<i8>.
+  fn main() {
+      let x: i8 = 5;
+      let y: Option<i8> = Some(5);
+
+      // You have to convert Option<i8> to i8 first.
+      let sum = x + y;
+  }
+  ```
+
+## 6.2 The match Control Flow Operator
+
+- Our coin will either be the 4 types of variants for the enum Coin.
+- Variant arms are usually brief but we can use curly braces to use more code.
+
+```rust
+enum Coin {
+    Penny,
+    Nickel,
+    Dime,
+    Quarter,
+}
+
+fn value_in_cents(coin: Coin) -> u8 {
+    // If the argument coin passed in matches any of these variant arms, it will run the code to the right of =>.
+    match coin {
+        Coin::Penny => {
+            println!("Lucky penny!");
+            1
+        }
+        Coin::Nickel => 5,
+        Coin::Dime => 10,
+        Coin::Quarter => 25,
+    }
+}
+
+fn main() {}
+```
+
+- **Patterns that Bind to Values**
+  - We can have enums inside of enums and will handle specific cases like Alaska state.
+
+```rust
+#[derive(Debug)]
+enum UsState {
+    Alabama,
+    Alaska,
+    // --snip--
+}
+
+enum Coin {
+    Penny,
+    Nickel,
+    Dime,
+    // Enum inside of existing enum.
+    Quarter(UsState),
+}
+
+fn value_in_cents(coin: Coin) -> u8 {
+    match coin {
+        Coin::Penny => 1,
+        Coin::Nickel => 5,
+        Coin::Dime => 10,
+        Coin::Quarter(state) => {
+            println!("State quarter from {:?}!", state);
+            25
+        }
+    }
+}
+
+fn main() {
+    value_in_cents(Coin::Quarter(UsState::Alaska));
+}
+```
+
+- **Matching with Option<T>**
+  - We use enums to also check argument types and handle accordingly.
+
+```rust
+fn main() {
+    fn plus_one(x: Option<i32>) -> Option<i32> {
+        match x {
+            None => None,
+            Some(i) => Some(i + 1),
+        }
+    }
+
+    let five = Some(5);
+    let six = plus_one(five);
+    let none = plus_one(None);
+}
+```
+
+- **Matches are Exhaustive**
+
+- We need to handle all cases.
+- If you don't exhaust all the possibilities, Rust won't compile the code.
+
+```rust
+// This will error.
+fn main() {
+    fn plus_one(x: Option<i32>) -> Option<i32> {
+        match x {
+            // Not exhaustive enough.
+            Some(i) => Some(i + 1),
+        }
+    }
+
+    let five = Some(5);
+    let six = plus_one(five);
+    let none = plus_one(None);
+}
+```
+
+- **The \_ Placeholder**
+
+  - Use `_ => ()` to capture all types and return a unit.
+  - Underscore just matches all cases and unit doesn't do anything.
+
+```rust
+// Example of covering all possibilities.
+// However, too exhaustive for match, use if-let instead.
+fn main() {
+    let some_u8_value = 0u8;
+    match some_u8_value {
+        1 => println!("one"),
+        3 => println!("three"),
+        5 => println!("five"),
+        7 => println!("seven"),
+        _ => (),
+    }
+}
+```
+
+## 6.3 Concise Control Flow with if let
+
+- `if let` is syntactic sugar for `match` if you want to handle only 1 case.
+- It's less verbose and you can also include an `else` statement.
+- We lose out on exhaustive checking for conciseness.
+
+```rust
+// The standard match flow.
+fn main() {
+    let some_u8_value = Some(0u8);
+    match some_u8_value {
+        Some(3) => println!("three"),
+        _ => (),
+    }
+}
+
+// Using if let is cleaner.
+fn main() {
+    let some_u8_value = Some(0u8);
+    if let Some(3) = some_u8_value {
+        println!("three");
+    }
+}
+```
+
+- Here's another example where we can add `else` as well.
+
+```rust
+// Example where we were using match for state coins.
+#[derive(Debug)]
+enum UsState {
+    Alabama,
+    Alaska,
+    // --snip--
+}
+
+enum Coin {
+    Penny,
+    Nickel,
+    Dime,
+    Quarter(UsState),
+}
+
+fn main() {
+    let coin = Coin::Penny;
+    let mut count = 0;
+    match coin {
+        Coin::Quarter(state) => println!("State quarter from {:?}!", state),
+        _ => count += 1,
+    }
+}
+
+// Same example written with if let and else statements.
+#[derive(Debug)]
+enum UsState {
+    Alabama,
+    Alaska,
+    // --snip--
+}
+
+enum Coin {
+    Penny,
+    Nickel,
+    Dime,
+    Quarter(UsState),
+}
+
+// The syntax takes getting use to.
+fn main() {
+    let coin = Coin::Penny;
+    let mut count = 0;
+    if let Coin::Quarter(state) = coin {
+        println!("State quarter from {:?}!", state);
+    } else {
+        count += 1;
+    }
+}
+```
