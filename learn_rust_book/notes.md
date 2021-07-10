@@ -1354,7 +1354,7 @@ fn main() {
 - _structs_ are like C# or Javascript classes to me. You can also think of it as a template or scaffold.
 - _fields_ are like the members of a class to me.
 - We make _instances_ of a struct to use it.
-  - Don't have to specify the fields fields in the same order as the struct.
+  - Don't have to specify the fields in the same order as in the struct.
 
 ```rust
 struct User {
@@ -1377,7 +1377,7 @@ fn main() {
 - **Changing specific values of Struct**
 
   - Use dot notation.
-  - All the fields are mutable by default, you can't select just one.
+  - All the fields are mutable by default, you can't select some to be mutable and others immutable.
 
 ```rust
 struct User {
@@ -1415,14 +1415,16 @@ fn build_user(email: String, username: String) -> User {
   - Just write it once:
 
   ```rust
-  // Shorthand where we don't have to write key and value names.
-  // It's inferred.
-  User {
-    email,
-    username,
-    active: true,
-    sign_in_count: 1,
-  }
+    // Shorthand where we don't have to write key and value names.
+    // It's inferred.
+    fn build_user(email: String, username: String) -> User {
+        User {
+            email,
+            username,
+            active: true,
+            sign_in_count: 1,
+        }
+    }
   ```
 
 - **Struct Update Syntax**
@@ -1445,7 +1447,7 @@ fn build_user(email: String, username: String) -> User {
           sign_in_count: 1,
       };
 
-      // Notice how we use user.active and user1.sign_in_count here.
+      // Notice how we can use user.active and user1.sign_in_count here.
       let user2 = User {
           email: String::from("another@example.com"),
           username: String::from("anotherusername567"),
@@ -1484,12 +1486,14 @@ fn build_user(email: String, username: String) -> User {
 - **Unit-Like Structs Without Any Fields**
 
   - _Unit-like structs_ are structs that don't have any fields.
-  - Useful to implement trait on some type but don't have any data to store on it. Don't understand this yet...see chapter 10.
+  - Useful to implement trait on some type but don't have any data to store in the type itself. Don't understand this yet...see chapter 10.
 
 - **Ownership of Struct Data**
 
   - This example won't work without understanding lifetimes.
   - _Lifetimes_ ensures that the data lasts as long as the struct does.
+  - Using `&str` means that the `User` struct doesn't own all of its data, it has references to another location.
+  - For now, we should just use `String` type until we learn later how to use `&str` in our structs.
 
     ```rust
     struct User {
@@ -1516,7 +1520,7 @@ fn build_user(email: String, username: String) -> User {
 - We can do better, use a struct.
 
 - This is the basic way to write our feature.
-- Doesn't tell you about the relationship of the 2 variables.
+- Doesn't tell you about the relationship of the 2 variables and how it forms a rectangle.
 
 ```rust
 fn main() {
@@ -1537,7 +1541,7 @@ fn area(width: u32, height: u32) -> u32 {
 - **Refactoring with Tuples**
 
   - Tuples allows a pairing of the width and length value but there are some confusing parts.
-  - Don't know which from which index in the tuple represents which variable.
+  - Don't know which index in the tuple represents which variable.
   - Accessing index 0 and 1 is not very helpful either.
 
     ```rust
@@ -1617,7 +1621,7 @@ fn area(width: u32, height: u32) -> u32 {
 - **Defining Methods**
 
   - Methods can take ownership of `self` or borrow `self` mutably.
-  - If we generally want to read data, just use `&` reference.
+  - If we generally want to read data, just use `&self` reference.
 
 ```rust
 #[derive(Debug)]
@@ -1630,7 +1634,7 @@ struct Rectangle {
 // Then we add a method onto the struct.
 // Use impl, aka implementation, to add the method.
 impl Rectangle {
-    // &self refers to Rectangle
+    // &self refers to Rectangle struct.
     fn area(&self) -> u32 {
         self.width * self.height
     }
@@ -1653,8 +1657,8 @@ fn main() {
 - **Where's the -> Operator?**
 
   - Rust doesn't have `.`or `->` where we have to dereference the pointer first.
-  - Rust has _automatic referencing and dereferencing_ where it figures out to autically add `&`, `&mut`, or `*`.
-  - Automatic referencing works because methods have a clear receive, the type of `self`.
+  - Rust has _automatic referencing and dereferencing_ where it figures out to automatically add `&`, `&mut`, or `*`.
+  - Automatic referencing works because methods have a clear receiver, the type of `self`.
 
   ```rust
   // These are equal. First is cleaner.
@@ -1665,6 +1669,7 @@ fn main() {
 - **Methods with More Parameters**
 
   - We implement 2 methods here: area and can_hold.
+  - can_hold takes on more arguments than just `&self`.
 
   ```rust
   #[derive(Debug)]
@@ -1705,8 +1710,9 @@ fn main() {
 
 - **Associated Functions**
 
-  - Associated Functions don't take a `self` as a parameter and "associated" with the struct.
   - Often used for constructors.
+  - Associated Functions don't take a `self` as a parameter and "associated" with the struct.
+  - So it doesn't need to access the data on the struct at all.
   - Accessed through `::` syntax like `Rectangle::square(3);`
 
   ```rust
@@ -1734,10 +1740,11 @@ fn main() {
 - **Multiple impl Blocks**
 
   - It's valid syntax to have 2 separate impl blocks but not common practice.
+  - It's more efficient just to combine the 2 methods under one `impl` block.
 
 # 6.0 Enums and Pattern Matching
 
-- _Enum_ allow you to make a type with all its possible variants.
+- _Enum_ allow you to make a type with all its possible data types as variants.
 - This helps give meaning with your data.
 - _Option_ lets you express a value that is something or none.
 - Enums in Rust are similar to algebraic data types in functional languages like F#, OCaml, and Haskell.
@@ -1753,18 +1760,19 @@ fn main() {
     ```rust
     fn main() {
       // IpAddrKind is termed the kind.
-      // Two options are termed variants.
       enum IpAddrKind {
+        // Two options are termed variants.
           V4,
           V6,
       }
 
-      // A struct to incorporate an enum too.
+      // A struct can incorporate an enum too.
       struct IpAddr {
           kind: IpAddrKind,
           address: String,
       }
 
+      // Use :: to specify the variant of the enum.
       let home = IpAddr {
           kind: IpAddrKind::V4,
           address: String::from("127.0.0.1"),
@@ -1813,6 +1821,7 @@ fn main() {
 
   - You can write enums just like struct.
   - Enums can also have methods just like struct's.
+  - This example didn't compile for me. What's suppose to be in the call() body?
 
     ```rust
     // Written as enums.
@@ -1857,7 +1866,7 @@ fn main() {
   - Many languages have `null`, which means there's no value there.
   - Rust does not have null but uses Option Enum instead.
   - I think of Option Enum like a built in null type checker so we don't have to run null checks.
-  - We know there's a value and it's valid.
+  - We know there's a value and it's not null.
 
   - The standard library has `Option<T>` and so common that it's included in the prelude by default.
   - `<T>` just means the generic type. More on chapter 10.
@@ -1865,11 +1874,11 @@ fn main() {
 
   - Option Enum has only `Some` or `None` variants.
   - `Some` just means there's a value and it's held inside.
-  - `None` means there is not value, basically null.
+  - `None` means there is no value, basically null.
 
   - The ways to convert `Option<T>` to `T` are numerous. Check the documentation.
   - But we need to handle how to handle different types of the variants.
-  - Using `match` is a good way to do this.
+  - Using `match` or `if let` are good ways to do this.
 
   ```rust
   // This will error because Rust doesn't know
@@ -1994,7 +2003,7 @@ fn main() {
 
 ```rust
 // Example of covering all possibilities.
-// However, too exhaustive for match, use if-let instead.
+// However, too exhaustive for match, use if let instead.
 fn main() {
     let some_u8_value = 0u8;
     match some_u8_value {
@@ -2085,3 +2094,15 @@ fn main() {
     }
 }
 ```
+
+# 7.0 Managing Growing Projects with Packages, Crates, and Modules
+
+## 7.1 Packages and Crates
+
+## 7.2 Defining Modules to Control Scope and Privacy
+
+## 7.3 Paths for Referring to an Item in the Module Tree
+
+## 7.4 Bringing Paths Into Scope with the use Keyword
+
+## 7.5 Separating Modules into Different Files
