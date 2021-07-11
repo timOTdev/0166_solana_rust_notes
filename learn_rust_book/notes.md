@@ -2252,4 +2252,179 @@ pub fn eat_at_restaurant() {
 
 ## 7.4 Bringing Paths Into Scope with the use Keyword
 
+- We can bring in `use` to shorten path names and call methods as local.
+- Can utilize absolute or relative paths with `use` also.
+- Note, that `use` also check privacy, just like any other path.
+
+```rust
+mod front_of_house {
+    pub mod hosting {
+        pub fn add_to_waitlist() {}
+    }
+}
+
+// Bring absolute path here.
+use crate::front_of_house::hosting;
+
+pub fn eat_at_restaurant() {
+    // Now only have to refer to the trait.
+    hosting::add_to_waitlist();
+    hosting::add_to_waitlist();
+    hosting::add_to_waitlist();
+}
+```
+
+- **Creating Idiomatic use Paths**
+
+- Writing out the full path is less clear because don't know if the function was locally defined.
+- The idiomatic way is to have at least `hosting::add_to_waitlist();`.
+- However, it's idiomatic to specify the full path for structs, enums, and other items.
+
+```rust
+// If using full path...
+use crate::front_of_house::hosting::add_to_waitlist;
+
+pub fn eat_at_restaurant() {
+    // In a large code file, don't know if this was local or imported.
+    add_to_waitlist();
+    add_to_waitlist();
+    add_to_waitlist();
+}
+
+// Use full paths for structs, enums, and others...
+use std::collections::HashMap;
+
+fn main() {
+    // Common convention that we should know that HashMap is always imported.
+    let mut map = HashMap::new();
+    map.insert(1, 2);
+}
+```
+
+- However if you bring 2 of the same type of functions, you need 2 separate imports.
+- Or you can give them aliases.
+
+```rust
+// Using separate imports:
+use std::fmt;
+use std::io;
+
+// We know this comes from fmt module.
+fn function1() -> fmt::Result {
+    // --snip--
+}
+
+// We know this comes from io module.
+fn function2() -> io::Result<()> {
+    // --snip--
+}
+```
+
+- **Providing New Names with the as Keyword**
+
+- Can create 2 different functions or give them aliases:
+
+```rust
+// Using aliased imports:
+use std::fmt::Result;
+use std::io::Result as IoResult;
+
+fn function1() -> Result {
+    // --snip--
+}
+
+// No conflict with name Result.
+fn function2() -> IoResult<()> {
+    // --snip--
+}
+```
+
+- **Re-exporting Names with pub use**
+
+- _Re-exporting_ is the process of exposing modules to external code
+  - A dual move that imports the module and also exposes to external code.
+  - Syntax is `pub use`.
+- By default, new modules names we bring in are private.
+  - Other external code could not use our module.
+  - Now we can with `pub use`.
+- The whole process lets us write 1 structure but expose different parts.
+  - Helps organize the code for developers.
+
+```rust
+mod front_of_house {
+    pub mod hosting {
+        pub fn add_to_waitlist() {}
+    }
+}
+
+// `pub use` lets external code access this module.
+pub use crate::front_of_house::hosting;
+
+pub fn eat_at_restaurant() {
+    hosting::add_to_waitlist();
+    hosting::add_to_waitlist();
+    hosting::add_to_waitlist();
+}
+```
+
+- **Using External Packages**
+
+- `std` is an external crate but it is shipped with the Rust language.
+  - So we don't have to add it to `Cargo.toml` file.
+  - We just add `use` to our file.
+- `rand` was an external package we have to download from crates.io.
+  - We had to import it in our `Cargo.toml` file.
+  - Then we can use in a file:
+
+```rust
+// std crate already shipped with Rust language,
+// only need to import into file.
+use std::collections::HashMap;
+
+// Brings in rand package with Rng trait...
+use rand::Rng;
+
+fn main() {
+    // now can use thread_rng method.
+    let secret_number = rand::thread_rng().gen_range(1..101);
+}
+```
+
+- **Using Nested Paths to Clean Up Large use Lists**
+
+- This helps saves multiple lines of imports.
+- We can also write subpaths by using `self`.
+
+```rust
+// Multiple crates: from this...
+use std::cmp::Ordering;
+use std::io;
+
+// to this.
+use std::{cmp::Ordering, io};
+
+
+
+// Same crate: from this...
+use std::io;
+use std::io::Write;
+
+// to this.
+use std::io::{self, Write};
+```
+
+- **The Glob Operator**
+
+- Can bring in all the public items but not recommended.
+  - Uses `*` operator like `use std::collections::*;`
+  - Hard to tell which names are in scope.
+  - Often used for testing or prelude pattern. More in Chapter 11.
+
 ## 7.5 Separating Modules into Different Files
+
+- When we have multiple files, we can also import modules a certain way.
+  - Basically the folder structure works like items in the path.
+  - Can use `src/front_of_house.rs` and call with `mod front_of_house;`
+  - Or can use `src/front_of_house/hosting.rs` system.
+  - This lets us organize our code.
+  - See the separating_modules for example.
