@@ -2097,11 +2097,158 @@ fn main() {
 
 # 7.0 Managing Growing Projects with Packages, Crates, and Modules
 
+- We can divide the program into many parts.
+- We also encapsulate implementation detail and can use it from other parts of the program.
+- We can decide to make parts public and private.
+- We have to be mindful of scopes and variable names that are in and out of scope.
+- We need to keep in mind which variables are what types like function, struct, enum, etc.
+
+- **The Module System**
+  1. Packages
+  2. Crates
+  3. Modules and use
+  4. Paths
+
 ## 7.1 Packages and Crates
+
+- **A package must contain zero or one library crate, no more. You can have as many binary crates but need at least one crate (binary or library).**
+
+- The _crate root_ is the source file that the Rust compiler starts from.
+- _Crates_ are binary or library that has a crate root.
+
+  - `main.rs` is an example of a binary crate and considered the current crate root.
+  - `lib.rs` is considered a library and so this becomes the crate root over `main.rs`, if both are present.
+
+- _package_ is one or more crates that provide a set of functionality. It has a _cargo.toml_ file.
+
+  - A package can have multiple binary crates by putting the files in `src/bin` folder.
+
+- So the `rand` crate has an `Rng` trait but we can also define a struct named `Rng`.
+  - To avoid confusion, we can access our `rand` crate by adding as a dependency.
+  - The trait `Rng` can be accessed using `rand::Rng`.
+  - Keeping a crate's functionality in own scope/namespace helps prevent conflicts.
+  - The name `Rng` in our current crate refers to the struct.
 
 ## 7.2 Defining Modules to Control Scope and Privacy
 
+- _Modules_ lets us organize code within a crate into groups for readability and easy resus.
+
+  - Can also control the privacy of the items
+  - The library example helps us understand the _module tree_
+  - We define a module using `mod` like _front_of_house_.
+  - A module can also have `mod` children like _hosting_ and _serving_.
+
+- Remember that either main.rs or lib.rs form the module at the root of the crate's module structure, the _module tree_.
+- It helps to think of this as a file directory structure.
+
 ## 7.3 Paths for Referring to an Item in the Module Tree
+
+- Absolute paths start from crate.
+- Relative paths start from where it's called, in the same level in the current module.
+- Both use `::`
+
+- Choosing between using relative or absolute is going to be project based.
+
+- Modules all have _privacy boundary_.
+- The child can see the context outside but the outside can't see inside the child.
+- Akin to the manager's office at the restaurant.
+- This helps by not breaking the outer code if you can't the inside.
+
+- **Exposing Paths with the pub Keyword**
+
+  - The way privacy works in Rust is that all items (functions, methods, structs, enums, modules, and constants) are private by default.
+  - We expose by using `pub`.
+
+  - You can access things if they are in the same module even if there's no `pub` keyword.
+  - `eat_at_restaurant` can access `front_of_house` freely.
+
+  ```rust
+    mod front_of_house {
+        pub mod hosting {
+            pub fn add_to_waitlist() {}
+        }
+    }
+
+    pub fn eat_at_restaurant() {
+        // Absolute path
+        crate::front_of_house::hosting::add_to_waitlist();
+
+        // Relative path
+        front_of_house::hosting::add_to_waitlist();
+  ```
+
+- **Starting Relative Paths with super**
+
+- Super is useful to access things outside of the current module but in the same crate.
+- Basically, reach outside so we need to refer to the "parent".
+- `fix_incorrect_order` can reach for `serve_order` outside of the module.
+- The parent in this module tree is `crate`.
+
+```rust
+fn serve_order() {}
+
+mod back_of_house {
+    fn fix_incorrect_order() {
+        cook_order();
+        super::serve_order();
+    }
+
+    fn cook_order() {}
+}
+```
+
+- **Making Structs and Enums Public**
+- Structs have all fields _private_ by default.
+  - We can set public field like `toast` with dot notation.
+  - We can only set private fields with an associated function like `summer()`.
+
+```rust
+mod back_of_house {
+    pub struct Breakfast {
+        pub toast: String,
+        // This is private. Need summer() to set.
+        seasonal_fruit: String,
+    }
+
+    impl Breakfast {
+        pub fn summer(toast: &str) -> Breakfast {
+            Breakfast {
+                toast: String::from(toast),
+                seasonal_fruit: String::from("peaches"),
+            }
+        }
+    }
+}
+
+pub fn eat_at_restaurant() {
+    // Order a breakfast in the summer with Rye toast
+    let mut meal = back_of_house::Breakfast::summer("Rye");
+    // Change our mind about what bread we'd like
+    meal.toast = String::from("Wheat");
+    println!("I'd like {} toast please", meal.toast);
+
+    // The next line won't compile if we uncomment it; we're not allowed
+    // to see or modify the seasonal fruit that comes with the meal
+    // meal.seasonal_fruit = String::from("blueberries");
+}
+```
+
+- Enums have all variants _public_ by default.
+
+```rust
+mod back_of_house {
+    pub enum Appetizer {
+        // Both variants are public by default.
+        Soup,
+        Salad,
+    }
+}
+
+pub fn eat_at_restaurant() {
+    let order1 = back_of_house::Appetizer::Soup;
+    let order2 = back_of_house::Appetizer::Salad;
+}
+```
 
 ## 7.4 Bringing Paths Into Scope with the use Keyword
 
