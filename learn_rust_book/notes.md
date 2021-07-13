@@ -2428,3 +2428,308 @@ use std::io::{self, Write};
   - Or can use `src/front_of_house/hosting.rs` system.
   - This lets us organize our code.
   - See the separating_modules for example.
+
+# 8.0 Common Collections
+
+- _Collections_ can contain multiple values unlike other data types.
+  - This data is stored on the heap
+  - Data need not be known until compile time.
+  - Can grow or shrink during program running.
+  - 3 types: vector, string, hash map
+
+## 8.1 Storing Lists of Values with Vectors
+
+- **Creating a New Vector**
+
+  - _vector_ is a collection of the same type of values stored in a contiguous block in memory.
+  - `let v: Vec<i32> = Vec::new();` is how to create a new empty vector. Need to specify type since the vector is empty.
+  - `let v = vec![1, 2, 3]` is using `vec!` macro to create a vector with data inside. Type is inferred by Rust.
+  - `Vec<T>` can hold any type and T is called a _generic_.
+
+- **Updating a Vector**
+  - You can push to an existing vector with `push` method.
+  - We need `mut` in order to update the vector.
+  - The numbers inside `v` are of type i32, inferred by Rust.
+
+```rust
+let mut v = Vec::new();
+
+v.push(5);
+v.push(6);
+v.push(7);
+v.push(8);
+```
+
+- **Dropping a Vector Drops Its Elements**
+  - If a vector is freed, all the elements get cleaned up to.
+
+```rust
+{
+    let v = vec![1, 2, 3, 4];
+
+    // do stuff with v
+} // <- v goes out of scope and is freed here
+```
+
+- **Reading Elements of Vectors**
+
+- Two ways to read a vector's content: using index or `get` method.
+  1. Index method uses `&` and `[]`.
+  - Panics if index is out of range.
+  2. Get method uses `.get(index)` with index being zero-based.
+  - This returns an `Option<&T>` by default. Needs to be handled.
+  - Does not panic when index out of range, returns `None` instead.
+
+```rust
+let v = vec![1, 2, 3, 4, 5];
+
+let third: &i32 = &v[2];
+println!("The third element is {}", third);
+
+match v.get(2) {
+    Some(third) => println!("The third element is {}", third),
+    None => println!("There is no third element."),
+}
+```
+
+- Ownership and borrowing rules still apply:
+  - If `&v[0]` references a mutable vector, any changes could possibly move the vector to another space in memory.
+  - Remember that vectors are contiguously stored in memory, so if the data gets too big, all of the vector has to moved.
+  - Therefore, you're referencing a deallocated block.
+
+```rust
+fn main() {
+    let mut v = vec![1, 2, 3, 4, 5];
+
+    let first = &v[0];
+
+    v.push(6);
+
+    println!("The first element is: {}", first);
+}
+```
+
+- **Iterating over the Values in a Vector**
+- We can loop through vectors with `for` loops in two ways:
+  - In the second way, we have to dereference i with `*`.
+  - The same reason above because a vector can move if the size doesn't fit the allocated memory block any longer.
+
+```rust
+// Looping through immutable vector.
+let v = vec![100, 32, 57];
+for i in &v {
+    println!("{}", i);
+}
+
+// Looping through mutable vector.
+let mut v = vec![100, 32, 57];
+for i in &mut v {
+    *i += 50;
+}
+```
+
+- **Using an Enum to Store Multiple Types**
+
+- We can combine vectors with `enum` to make our vectors more flexible.
+  - Vectors can only take 1 type of data but enums can have varied types.
+  - This allows us to help Rust by knowing some memory allocation on the heap beforehand for the known types but also allow flexibility for the unknown types.
+  - The `enum` also restricts what types are allowed in the vector.
+  - If we don't know all the types of the program, use `trait` object instead. More in chapter 17.
+
+```rust
+enum SpreadsheetCell {
+    Int(i32),
+    Float(f64),
+    Text(String),
+}
+
+let row = vec![
+    SpreadsheetCell::Int(3),
+    SpreadsheetCell::Text(String::from("blue")),
+    SpreadsheetCell::Float(10.12),
+];
+```
+
+## 8.2 Storing UTF-8 Encoded Text with Strings
+
+- Strings are complex in Rust compared to other languages.
+- We look at creating, updating, and reading.
+- Indexing a string is not straightforward.
+
+- **What Is a String?**
+
+- String literals are string slices `str` used with `&str` are core to Rust language.
+- `String` type is provided by Rust's standard library.
+- When Rustaceans talk about strings, they are talking about both string slices and `String` types are the same time.
+- Both are UTF-8 encoded.
+
+- There are other types but not covered here: `OsString`, `OsStr`, `CString`, `CStr`.
+- These are owned and borrowed variants.
+
+- **Creating a New String**
+
+  - Use `String::new();` or `to_string();`
+
+    ```rust
+    // Method 1
+    let mut s = String::new();
+    let s = String::from("initial contents");
+
+    // Method 2
+    let data = "initial contents";
+    let s = data.to_string();
+
+    // the method also works on a literal directly:
+    let s = "initial contents".to_string();
+    ```
+
+- These are all valid UTF-8 valid string values:
+
+  ```rust
+  let hello = String::from("السلام عليكم");
+  let hello = String::from("Dobrý den");
+  let hello = String::from("Hello");
+  let hello = String::from("שָׁלוֹם");
+  let hello = String::from("नमस्ते");
+  let hello = String::from("こんにちは");
+  let hello = String::from("안녕하세요");
+  let hello = String::from("你好");
+  let hello = String::from("Olá");
+  let hello = String::from("Здравствуйте");
+  let hello = String::from("Hola");
+  ```
+
+- **Updating a String**
+- **Appending to a String with push_str and push**
+
+  - Can use `push_str()` and `push()` to update.
+  - `push_str()` takes a string slice and does NOT take ownership.
+
+    ```rust
+    let mut s = String::from("foo");
+    s.push_str("bar");
+    s1.push_str(s2);
+    println!("s2 is {}", s2); // => foobar
+
+    // push() only takes 1 character as a parameter.
+    let mut s = String::from("lo");
+    s.push('l'); // => lol
+    ```
+
+- **Concatenation with the + Operator or the format! Macro**
+
+  - Using `+` is tricky unless you truly understand it. Better to use `format!` macro.
+  - s1 ownership was taken so we can't reuse.
+  - Clues lie in the signature of the method `+` operator, or add method: `fn add(self, s: &str) -> String {`
+  - Note that `add()` does not take ownership of s2, so that's still valid.
+
+  - `+` works only with `&str` and `String`, so why does it work here?
+  - `&s2` is a `&String` type, but there's _deref coercion_ at play here.
+  - The compiler coerces `&String` into `&str` here. From `&s2` into `&s2[..]`. More in chapter 15.
+
+  - What's truly happening here is `s1` is taken ownership and a copy of `s2` is appended. This is more efficient than copying both.
+
+    ```rust
+    let s1 = String::from("Hello, ");
+    let s2 = String::from("world!");
+    let s3 = s1 + &s2; // note s1 has been moved here and can no longer be used
+    ```
+
+- It can get crazy so use `format!` macro.
+
+  - `format!` doesn't take ownership of any of the parameters.
+
+    ```rust
+    let s1 = String::from("tic");
+    let s2 = String::from("tac");
+    let s3 = String::from("toe");
+
+    // The hard way
+    let s = s1 + "-" + &s2 + "-" + &s3;
+
+    // The easy way
+    let s = format!("{}-{}-{}", s1, s2, s3);
+    ```
+
+- **Indexing into Strings**
+
+  - You can't index a string because some characters can span 2 bytes instead of 1.
+
+    ```rust
+    // Won't work!
+    let s1 = String::from("hello");
+    let h = s1[0];
+    ```
+
+- **Internal Representation**
+
+  - A `String` is a wrapper over a `Vec<u8>`.
+
+    ```rust
+    // 4 bytes total
+    let hello = String::from("Hola");
+
+    // Actually 24 bytes, not 12 as you would think.
+    let hello = String::from("Здравствуйте");
+
+    // Trying to get the Cyrillic letter Ze (З) is not easy.
+    // Index 0 is only half of the first character.
+    // You need both bytes to represent Ze.
+    let hello = "Здравствуйте";
+    let answer = &hello[0];
+    ```
+
+- So Rust doesn't handle indexing at all!
+- "To avoid returning an unexpected value and causing bugs that might not be discovered immediately, Rust doesn’t compile this code at all and prevents misunderstandings early in the development process."
+
+- **Bytes and Scalar Values and Grapheme Clusters! Oh My!**
+
+  - These are the 3 ways to look at strings.
+  - grapheme clusters are the closest thing to what we would call letters.
+  - Indexes of strings should be O(1) operation but we can't guarantee that with how complicated strings are.
+
+    ```rust
+    // Hindi word: नमस्ते
+    // Stored 18 bytes as vec<u8>: [224, 164, 168, 224, 164, 174, 224, 164, 184, 224, 165, 141, 224, 164, 164, 224, 165, 135]
+    // 4th and 6th are diacritics (don't make sense on own): ['न', 'म', 'स', '्', 'त', 'े']
+    // When we mean letters: ["न", "म", "स्", "ते"]
+    ```
+
+- **Slicing Strings**
+
+  - We can use string slices to grab letters but it's dangerous.
+  - It can crash your program if you're not careful.
+
+    ```rust
+    let hello = "Здравствуйте";
+
+    // This works because each "letter" here is 2 bytes. => Зд
+    let s = &hello[0..4];
+
+    // Will error because only half of the first letter. => panic
+    let t = &hello[0..1];
+    ```
+
+- **Methods for Iterating Over Strings**
+
+  - Use `chars` or `bytes` method to iterate over elements.
+  - `grapheme clusters` is not covered here.
+  - Functionality is not provided in standard library.
+  - Can check out crates.io.
+
+    ```rust
+    // chars method. This works if you're wanting characters.
+    for c in "नमस्ते".chars() {
+        println!("{}", c);
+    }
+
+    // bytes method. This works if you want raw byte.
+    for b in "नमस्ते".bytes() {
+        println!("{}", b);
+    }
+    ```
+
+- **Strings Are Not So Simple**
+  - Strings are harder here but they prevent errors involving non-ASCII characters.
+
+## 8.3 Storing Keys with Associated Values in Hash Maps
