@@ -2432,7 +2432,7 @@ use std::io::{self, Write};
 # 8.0 Common Collections
 
 - _Collections_ can contain multiple values unlike other data types.
-  - This data is stored on the heap
+  - This data is stored on the heap.
   - Data need not be known until compile time.
   - Can grow or shrink during program running.
   - 3 types: vector, string, hash map
@@ -2443,7 +2443,7 @@ use std::io::{self, Write};
 
   - _vector_ is a collection of the same type of values stored in a contiguous block in memory.
   - `let v: Vec<i32> = Vec::new();` is how to create a new empty vector. Need to specify type since the vector is empty.
-  - `let v = vec![1, 2, 3]` is using `vec!` macro to create a vector with data inside. Type is inferred by Rust.
+  - `let v = vec![1, 2, 3]` is using `vec!` macro to create a vector with data inside. Type is automatically inferred by Rust.
   - `Vec<T>` can hold any type and T is called a _generic_.
 
 - **Updating a Vector**
@@ -2461,28 +2461,30 @@ v.push(8);
 ```
 
 - **Dropping a Vector Drops Its Elements**
-  - If a vector is freed, all the elements get cleaned up to.
+  - If a vector is freed, all the elements get cleaned up too.
 
 ```rust
 {
     let v = vec![1, 2, 3, 4];
 
     // do stuff with v
-} // <- v goes out of scope and is freed here
+} // <- v goes out of scope and is freed here, along with elements.
 ```
 
 - **Reading Elements of Vectors**
 
-- Two ways to read a vector's content: using index or `get` method.
-  1. Index method uses `&` and `[]`.
-  - Panics if index is out of range.
-  2. Get method uses `.get(index)` with index being zero-based.
-  - This returns an `Option<&T>` by default. Needs to be handled.
-  - Does not panic when index out of range, returns `None` instead.
+- ## Two ways to read a vector's content: using index or `get` method
+
+  - Method 1: Index method uses `&` and `[]`.
+    - Panics if index is out of range.
+  - Method 2: Get method uses `.get(index)` with index being zero-based.
+    - This returns an `Option<&T>` by default. Needs to be handled.
+    - Does not panic when index out of range, returns `None` instead.
 
 ```rust
 let v = vec![1, 2, 3, 4, 5];
 
+// Method 1
 let third: &i32 = &v[2];
 println!("The third element is {}", third);
 
@@ -2494,8 +2496,8 @@ match v.get(2) {
 
 - Ownership and borrowing rules still apply:
   - If `&v[0]` references a mutable vector, any changes could possibly move the vector to another space in memory.
-  - Remember that vectors are contiguously stored in memory, so if the data gets too big, all of the vector has to moved.
-  - Therefore, you're referencing a deallocated block.
+  - Remember that vectors are contiguously stored in memory, so if the data gets too big, all the bytes of the vector has to moved.
+  - Consequently, you would be referencing a deallocated block.
 
 ```rust
 fn main() {
@@ -2511,8 +2513,9 @@ fn main() {
 
 - **Iterating over the Values in a Vector**
 - We can loop through vectors with `for` loops in two ways:
-  - In the second way, we have to dereference i with `*`.
+  - In the second way, we have to dereference `i` with `*`.
   - The same reason above because a vector can move if the size doesn't fit the allocated memory block any longer.
+  - So we have to say that `i` could be moved too.
 
 ```rust
 // Looping through immutable vector.
@@ -2532,8 +2535,9 @@ for i in &mut v {
 
 - We can combine vectors with `enum` to make our vectors more flexible.
   - Vectors can only take 1 type of data but enums can have varied types.
-  - This allows us to help Rust by knowing some memory allocation on the heap beforehand for the known types but also allow flexibility for the unknown types.
-  - The `enum` also restricts what types are allowed in the vector.
+  - This allows us to help Rust by declaring some memory allocation on the heap beforehand for the known types but also allow flexibility for the unknown types that come into the enum.
+  - We know that there are 3 items of type `SpreadsheetCell` for the vector which follows the rules.
+  - With the `enum`, we can restricts what types are allowed each the vector.
   - If we don't know all the types of the program, use `trait` object instead. More in chapter 17.
 
 ```rust
@@ -2558,8 +2562,8 @@ let row = vec![
 
 - **What Is a String?**
 
-- String literals are string slices `str` used with `&str` are core to Rust language.
-- `String` type is provided by Rust's standard library.
+- String literals are string slices `str` used with `&str` and are core to Rust language. Another term is the _borrowed_ type. This one is static at run time.
+- `String` type is provided by Rust's standard library. Another term is the _owned_ type. This one is growable and mutable at run time.
 - When Rustaceans talk about strings, they are talking about both string slices and `String` types are the same time.
 - Both are UTF-8 encoded.
 
@@ -2602,12 +2606,13 @@ let row = vec![
 - **Updating a String**
 - **Appending to a String with push_str and push**
 
-  - Can use `push_str()` and `push()` to update.
+  - Can use `push_str()` and `push()` to update strings.
   - `push_str()` takes a string slice and does NOT take ownership.
+  - Notice `push_str` takes a string slice in code below. Otherwise would fail. You wouldn't have been able to println! if s2 transferred ownership to push_str.
 
     ```rust
     let mut s = String::from("foo");
-    s.push_str("bar");
+    let s2 = "bar";
     s1.push_str(s2);
     println!("s2 is {}", s2); // => foobar
 
@@ -2623,19 +2628,19 @@ let row = vec![
   - Clues lie in the signature of the method `+` operator, or add method: `fn add(self, s: &str) -> String {`
   - Note that `add()` does not take ownership of s2, so that's still valid.
 
-  - `+` works only with `&str` and `String`, so why does it work here?
+  - `+` works only with `&str` and `String`, but why does it work here?
   - `&s2` is a `&String` type, but there's _deref coercion_ at play here.
   - The compiler coerces `&String` into `&str` here. From `&s2` into `&s2[..]`. More in chapter 15.
 
-  - What's truly happening here is `s1` is taken ownership and a copy of `s2` is appended. This is more efficient than copying both.
+  - What's truly happening here is `s1` was taken ownership by `+` and a copy of `s2` is appended. This is more efficient than copying both.
 
     ```rust
     let s1 = String::from("Hello, ");
     let s2 = String::from("world!");
-    let s3 = s1 + &s2; // note s1 has been moved here and can no longer be used
+    let s3 = s1 + &s2; // note s1 ownership has been moved here and can no longer be used
     ```
 
-- It can get crazy so use `format!` macro.
+- It can get crazy with multiple additions so use `format!` macro.
 
   - `format!` doesn't take ownership of any of the parameters.
 
@@ -2654,9 +2659,10 @@ let row = vec![
 - **Indexing into Strings**
 
   - You can't index a string because some characters can span 2 bytes instead of 1.
+  - However, Rust just doesn't handle indexing of strings at all.
 
     ```rust
-    // Won't work!
+    // Won't work, period!
     let s1 = String::from("hello");
     let h = s1[0];
     ```
@@ -2674,9 +2680,9 @@ let row = vec![
 
     // Trying to get the Cyrillic letter Ze (З) is not easy.
     // Index 0 is only half of the first character.
-    // You need both bytes to represent Ze.
+    // You need both 1st and 2nd bytes to represent Ze.
     let hello = "Здравствуйте";
-    let answer = &hello[0];
+    let answer = &hello[0]; // fails
     ```
 
 - So Rust doesn't handle indexing at all!
@@ -2692,7 +2698,7 @@ let row = vec![
     // Hindi word: नमस्ते
     // Stored 18 bytes as vec<u8>: [224, 164, 168, 224, 164, 174, 224, 164, 184, 224, 165, 141, 224, 164, 164, 224, 165, 135]
     // 4th and 6th are diacritics (don't make sense on own): ['न', 'म', 'स', '्', 'त', 'े']
-    // When we mean letters: ["न", "म", "स्", "ते"]
+    // When we mean letters with diacritics removed: ["न", "म", "स्", "ते"]
     ```
 
 - **Slicing Strings**
@@ -2730,6 +2736,6 @@ let row = vec![
     ```
 
 - **Strings Are Not So Simple**
-  - Strings are harder here but they prevent errors involving non-ASCII characters.
+  - Strings are harder in Rust but they prevent errors involving non-ASCII characters down the line.
 
 ## 8.3 Storing Keys with Associated Values in Hash Maps
