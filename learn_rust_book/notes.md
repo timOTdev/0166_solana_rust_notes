@@ -2739,3 +2739,175 @@ let row = vec![
   - Strings are harder in Rust but they prevent errors involving non-ASCII characters down the line.
 
 ## 8.3 Storing Keys with Associated Values in Hash Maps
+
+- `HashMap<K, V>` stores keys and values
+- Uses a _hashing function_ to determine location in memory.
+- It has many names: hash, map, object, hash table, dictionary, associative array.
+- Useful if you want to look up something quickly.
+
+- **Creating a New Hash Map**
+
+  - HashMap is not part of the standard library so much be imported.
+  - Least commonly used than `vectors` and `String`, which are included in prelude.
+  - Not much support from standard library, so no macro method to create.
+  - Keys are of type `String` and values of type `i32`.
+  - All keys and values must be homogenous types.
+
+  ```rust
+  fn main() {
+    use std::collections::HashMap;
+
+    let mut scores = HashMap::new();
+
+    scores.insert(String::from("Blue"), 10);
+    scores.insert(String::from("Yellow"), 50);
+  }
+  ```
+
+  - We can also use vectors of tuple to create a Hash Map with `collect`.
+  - More in chapter 13.
+
+  ```rust
+  fn main() {
+    use std::collections::HashMap;
+
+    let teams = vec![String::from("Blue"), String::from("Yellow")];
+    let initial_scores = vec![10, 50];
+
+    let mut scores: HashMap<_, _> =
+        teams.into_iter().zip(initial_scores.into_iter()).collect();
+  }
+  ```
+
+- **Hash Maps and Ownership**
+
+  - Types that implement `Copy` trait (i32) are copied onto hash map.
+  - Owned types like `String` are moved and ownership taken.
+  - `insert` in the code sample has moved the ownership into the hash map.
+
+  ```rust
+    use std::collections::HashMap;
+
+    let field_name = String::from("Favorite color");
+    let field_value = String::from("Blue");
+
+    let mut map = HashMap::new();
+    map.insert(field_name, field_value);
+    // field_name and field_value are invalid at this point, try using them and
+    // see what compiler error you get!
+  ```
+
+- **Accessing Values in a Hash Map**
+
+  - If you use `get` method, you will get an `Option<&V>`. So much be handled if you want the value.
+
+  ```rust
+  fn main() {
+    use std::collections::HashMap;
+
+    let mut scores = HashMap::new();
+
+    scores.insert(String::from("Blue"), 10);
+    scores.insert(String::from("Yellow"), 50);
+
+    let team_name = String::from("Blue");
+    let score = scores.get(&team_name); // => Some(&10)
+  }
+  ```
+
+  - Iterating over key/value pair is like vector.
+  - The print will be in arbitrary order, not guaranteed.
+
+  ```rust
+  fn main() {
+    use std::collections::HashMap;
+
+    let mut scores = HashMap::new();
+
+    scores.insert(String::from("Blue"), 10);
+    scores.insert(String::from("Yellow"), 50);
+
+    for (key, value) in &scores {
+        println!("{}: {}", key, value);
+    }
+  }
+  ```
+
+- **Updating a Hash Map**
+
+  - Many ways to interact with the hash map.
+  - Can only ever be 1 key associated to 1 value.
+
+- **Overwriting a Value**
+
+  - Will overwrite with the latest value.
+
+  ```rust
+  use std::collections::HashMap;
+
+  let mut scores = HashMap::new();
+
+  scores.insert(String::from("Blue"), 10);
+  scores.insert(String::from("Blue"), 25);
+
+  println!("{:?}", scores); // => {"Blue": 25}
+  ```
+
+- **Only Inserting a Value If the Key Has No Value**
+
+  - Use `entry` API to insert value. Uses Entry enum under the hood.
+  - `or_insert` returns a mutable reference to value if key exists.
+  - Otherwise, it will insert the new value.
+
+  ```rust
+  use std::collections::HashMap;
+
+  let mut scores = HashMap::new();
+  scores.insert(String::from("Blue"), 10);
+
+  // Inserts new value 50 for yellow.
+  scores.entry(String::from("Yellow")).or_insert(50);
+
+  // Does NOT insert 50 because 10 already exists.
+  scores.entry(String::from("Blue")).or_insert(50);
+
+  println!("{:?}", scores); // => {"Yellow": 50, "Blue": 10}
+  ```
+
+- **Updating a Value Based on the Old Value**
+
+  - Inserts 0 if there's no entry in the hash map.
+  - `count` interacts on the value returned.
+
+  ```rust
+  use std::collections::HashMap;
+
+  let text = "hello world wonderful world";
+
+  let mut map = HashMap::new();
+
+  for word in text.split_whitespace() {
+      // returns &mut v
+      let count = map.entry(word).or_insert(0);
+      // Must dereference the &mut v with * before usage.
+      *count += 1;
+  }
+
+  println!("{:?}", map); // => {"world": 2, "hello": 1, "wonderful": 1}
+  ```
+
+- **Hashing Functions**
+
+  - Hash maps use `SipHash` by default to resist DoS attacks.
+  - Tradeoff for speed for security. Not as fast hashing algorithm available.
+  - If too slow, use a different hasher.
+  - Hasher uses `BuildHasher` trait. More in chapter 10.
+  - Many hashers on crates.io, don't have to implement own.
+
+- **Chapter 8 Summary**
+  - Lots of methods to use for vectors, strings, and hashmaps.
+  - See standard library API documentation.
+  - Now you can do exercises:
+  1. Given a list of integers, use a vector and return the mean (the average value), median (when sorted, the value in the middle position), and mode (the value that occurs most often; a hash map will be helpful here) of the list.
+  2. Convert strings to pig latin. The first consonant of each word is moved to the end of the word and “ay” is added, so “first” becomes “irst-fay.” Words that start with a vowel have “hay” added to the end instead (“apple” becomes “apple-hay”). Keep in mind the details about UTF-8 encoding!
+  3. Using a hash map and vectors, create a text interface to allow a user to add employee names to a department in a company. For example, “Add Sally to Engineering” or “Add Amir to Sales.” Then let the user retrieve a list of all people in a department or all people in the company by department, sorted alphabetically.
