@@ -70,6 +70,7 @@ fn main() {
 - Cargo has the same commands for all OS
 - Cargo expects your source files to live inside the src directory.
 - The top-level project directory is just for README files, license information, configuration files, and anything else not related to your code.
+
 - `cargo --version` - Checks if cargo is installed.
 - `cargo new hello_cargo` - Creates new cargo app like create-react-app. Will not generate Git files if an existing Git repository.
   - `cargo new --vcs=git` will generate Git files in an existing Git Repository.
@@ -129,20 +130,54 @@ fn main() {
 - If the guess is correct, it will congratulate and exit program
 
 - Commands used:
-
-```rust
-cargo new guessing_game
-cd guessing_game
-
-cargo run
-
-```
+  1. `cargo new guessing_game`
+  2. `cd guessing_game`
+  3. `cargo run`
 
 ## 2.1 Processing a Guess
 
 - The prelude brings only a few types into the scope of every program.
 - We have to use `use` statement to bring in other libraries.
 - The `std::io` is a standard library.
+- We're in the guessing_game folder.
+
+```rust
+use std::io;
+use rand::Rng;
+use std::cmp::Ordering;
+
+fn main() {
+    println!("Guess the number!");
+
+    let secret_number = rand::thread_rng().gen_range(1..101);
+
+    loop {
+      println!("Please input your guess.");
+
+      let mut guess = String::new();
+
+      io::stdin()
+          .read_line(&mut guess)
+          .expect("Failed to read line");
+
+      let guess: u32 = match guess.trim().parse() {
+        Ok(num) => num,
+        Err(_) => continue,
+      };
+
+      println!("You guessed: {}", guess);
+
+      match guess.cmp(&secret_number) {
+          Ordering::Less => println!("Too small!"),
+          Ordering::Greater => println!("Too big!"),
+          Ordering::Equal => {
+            println!("You win!");
+            break;
+          },
+      }
+    }
+}
+```
 
 ## 2.2 Storing Values with Variables
 
@@ -150,24 +185,24 @@ cargo run
 - `String::new` is a function that returns a new instance of String.
 - `String` is a type, `::` means that `new` is an associated function of the string type.
 - `new` is not implemented on the instance but rather on the String type itself.
-- Other languages call this "static method".
+- Other languages call this a "static method".
 
-- We could have also used `std::io:stdin` if we didn't put the `use:std::io at the top.
+- We could have also used `std::io:stdin` if we didn't put the `use:std::io` at the top.
 - The `std::io` library returns and instance of `stdin`.
 - `.read_line(&mut guess)` is a method on the `stdin` and takes 1 argument.
   - It appends the user's input into a string.
   - The string argument passed in must be mutable.
 - `&` indidates that the argument is a reference.
-  - Lets the program access one piece of data without having to copy data into memory multiple times
-  - References are immutable by default.
-  - Details are not important right now, see Chapter 4.
+
+  - Lets the program access one piece of data without having to copy data into memory multiple times.
+  - References are immutable by default. More in Chapter 4.
 
 ## 2.3 Handling Potential Failure with the Result Type
 
 - Good to divide lines of code to make it more readable.
 - TIP: The right way to suppress the warning is to actually write error handling.
 - But we want to crash the program, so we use `expect`.
-- `.expect` is comes from a type called `io:Result`.
+- `.expect` is a variant that comes from a type called `io:Result`.
 - There are many types that are called Result but `io:Result` here is a specific version of submodules.
 
 - Result types are _enumerations_, and their values are called _variants_.
@@ -198,10 +233,10 @@ println!("x = {} and y = {}", x, y);
 
 ## 2.7 Using a Crate to Get More Functionality
 
-- A crate is a collection of source code files.
+- A *crate* is a collection of source code files.
 
-  - Our project is a binary crate, which has an executable.
-  - A rand crate is a library crate, which has code to be used in projects.
+  - Our project is a *binary* crate, which has an executable.
+  - A rand crate is a *library* crate, which has code to be used in projects.
   - You can get more crates on crates.io.
   - I think of crates like npm packages.
 
@@ -222,7 +257,7 @@ println!("x = {} and y = {}", x, y);
 ## 2.8 Ensuring Reproducible Builds with Cargo.lock File
 
 - The lock file ensures that the versions specified in the toml file are consistent.
-- Cargo uses this lock file to build your project in the future to speed up the build process.
+- Cargo uses this lock file to intelligently build your project in the future to speed up the build process.
 
 ## 2.9 Updating a Crate to Get a New Version
 
@@ -246,7 +281,7 @@ println!("x = {} and y = {}", x, y);
 
   - This is a method from the Rng trait we brought in for this scope.
   - Normally, lower bound inclusive and upper bound exclusive.
-  - The syntax `1..101` and `1..=100` are equal in this case.
+  - The syntax `1..101` and `1 .. =100` are equal in this case.
 
 - Use `cargo doc --open` builds documentation provided by all your dependencies.
 - This compiles locally and opens in your browser.
@@ -271,9 +306,9 @@ println!("x = {} and y = {}", x, y);
   - `secret_number` variable was originally an int when generated.
   - Rust normally defaults to `i32`, an unsigned 32-bit number.
 
-- We have to convert the guess into an integer.
+- We have to convert the guess, a string, into an integer.
 
-  - We use something called shadow to rename the type of the guess variable.
+  - We use something called "shadow" to rename the type of the guess variable.
   - This is possible because Rust allows renaming of types when redeclared.
 
 - We use `let guess: u32 = guess.trim().parse().expect("Please type a number");`
@@ -323,13 +358,14 @@ println!("x = {} and y = {}", x, y);
 - By default variables are immutable because easier to reason through.
 - Can't change value once assigned to variable name.
 - [x] Variables Exercise
+
 - `mut` in front of variable name allows you to make variable mutable.
 - Balance performance versus clarity.
   - Big data structures are faster if you mutate values.
   - Small data structures are easier to abstract and write functional programming style.
 - Values and constants are different.
 
-- Constant
+- **Constant**
 
   - Uses `const` keyword. Diferences from let:
     1. Are _always_ immutable. You can't use `mut` with constants.
@@ -339,10 +375,9 @@ println!("x = {} and y = {}", x, y);
   - Constants last the lifetime for the whole of the program.
   - Scoped to where declared.
 
-- Shadowing
-
-  - When values carry over in subsequent declarations.
-  - We are just transforming the values but we can't reassign the variable name without using `let` keyword.
+- **Shadowing**
+  - When values carry over in subsequent declarations by redeclaring the variable with `let`.
+  - We are just transforming the values but we can't reassign the variable name.
   - Also allows changing of the type of the variable because we are _effectively creating a new variable with every new shadow._
 
     ```rust
@@ -375,6 +410,7 @@ println!("x = {} and y = {}", x, y);
 
 - Rust is a _statically typed language,_ we must know types of all variables at compile time.
 - Compiler usually infers types from the value initialized for the variable.
+- Sometimes we have to explicitly tell it what type.
 
 ```rust
   fn main() {
@@ -385,37 +421,41 @@ println!("x = {} and y = {}", x, y);
   }
 ```
 
+- **Data Types**
 - There are 2 data type subsets: scalar and compound.
 - Scalar types represent a single value.
   - Rust four primary scalar types integers, floating-point numbers, booleans, and characters.
 - Compound types can hold multiple values such as tuples and arrays.
 
-- Integer Types
-
+- **Integer Types**
   - Can be signed and unsigned.
   - Rust's integer defaults to `i32` , generally the fastest even on 64-bit systems.
   - Use `i` for signed integer types
-    Use `u` for unsigned interge types
-    Number represents amount of bits.
-    8, 16, 32, 64, 128, arch bits.
+  - Use `u` for unsigned interge types
+  - Number represents amount of bits.
+  - 8, 16, 32, 64, 128, arch bits.
   - u8 is unsigned 8 bit integer.
   - `isize` or `usize` are arch bits and depends on your computer architecture. Use these when indexing some sort of collection.
 
   - You can write in many ways including decimal, hex, octal binary, and byte.
   - Numbers over the bit settings will cause _integer overflow_ and _panic_ at runtime (program exits with an error.
-  - During —release flag, rust does _not_ check for integer overflow that causes panic.
+  - During `—release` flag, rust does _not_ check for integer overflow that causes panic.
+
+- **Integer overflow and complement wrapping**
+  - Integer overflow is when numbers go beyond their designated bits.
+  - C languages have been known to do *complement wrapping*.
 
   - _Complement Wrapping_ will circle back to start at the minimum value of the range.
   - There's 4 types to handle this overflow.
-    1. wrapping\_\* wraps in all modes IE `wrapping_add`
+    1. wrapping\_\* - wraps in all modes IE `wrapping_add`
     2. checked\_\* - Returns None value if overflow
     3. overflowing\_\* - Returns value and Boolean indicating overflow
     4. saturating\_\* - saturate with the minimum or maximum value.
 
-- Floating-Point Types
-
+- **Floating-Point Types**
   - Uses `f` character.
-  - Are decimal numbers and can be f32 or f64, default is f64.
+  - Are decimal numbers and can be f32 or f64.
+  - Default assignment is f64.
   - f64 has double precision and roughly same speed as f32.
 
     ```rust
@@ -426,8 +466,7 @@ println!("x = {} and y = {}", x, y);
     }
     ```
 
-- Numeric Operations
-
+- **Numeric Operations**
   - We got all the basic math operations.
 
     ```rust
@@ -449,27 +488,24 @@ println!("x = {} and y = {}", x, y);
     }
     ```
 
-  - Boolean Type
+  - **Boolean Type**
     - Either `true` or `false` and take up 1 byte.
 
-- Character Types
-
+- **Character Types**
   - Use single quotes with char literals.
   - Use double quotes for string literals.
   - 4 bytes in size and can be more than just ASCII.
 
-- Compound Types
-
+- **Compound Types**
   - Structures that can hold multiple values into 1 type.
   - Rust has tuples and arrays.
 
-  - Tuple
-
+  - **Tuple**
     - Tuples can vary with data types.
-    - Tuples are fixed length, can't redeclare size.
+    - Tuples are fixed length, can't redeclare the size.
     - Can destructure tuples into variables.
     - Index access uses `.` IE x.0 or x.1
-    - Rust uses zero-based indexing.
+    - Rust uses zero-based indexing with `.`.
 
     ```rust
     // Heterogenous collection
@@ -498,13 +534,13 @@ println!("x = {} and y = {}", x, y);
     }
     ```
 
-  - Array
-
-    - Must all be of the same type.
-    - Have fixed lengths like Tuples.
+  - **Array**
+    - Must all be of the same type. This is opposite of *tuples* with heterogenous types.
+    - Have fixed lengths like *tuples*.
     - Most other languages have mutable array lengths, _not_ Rust.
     - Vectors are homogenous types but can change size.
     - Useful when allocate to stack rather than heap.
+    - We have array access put uses brackets `[]`.
 
     ```rust
     // Standard array initialization
@@ -540,7 +576,7 @@ println!("x = {} and y = {}", x, y);
 
 ## 3.3 Functions
 
-- `main` is the primary entry point of a program.
+- `main` is the primary entry point of every Rust program.
 - Rust uses snake case all lowercase and with underscores.
 - Function location doesn't matter, it will get hoisted.
 - Function parameter types must always be defined. Helps for compiler to discern any ambiguity.
@@ -563,7 +599,6 @@ fn another_function() {
 - Rust is an expression-based language, more distintive versus other languages.
 - _Statements_ are instructions that perform some action and do not return a value.
 - _Expressions_ evaluate to a resulting value.
-
   - Also calling a function, calling a macro, or creating new scopes with {} are examples of expressions.
 
 - You can't assign a value to a variable if statements never return a value.
@@ -593,6 +628,7 @@ fn main() {
 
 ```rust
 // x + 1 is an expression here and does NOT have a semicolon.
+// It will return the value 4 to y variable.
 fn main() {
     let x = 5;
 
@@ -610,7 +646,7 @@ fn main() {
   - This is because there's no semicolon so considered and expression, aka it returns that value.
 
 ```rust
-// The type of return is defined as i32.
+//==The type of return is defined as i32.
 // Note: no semicolon on 5 makes it an expression.
 fn five() -> i32 {
     5
@@ -622,7 +658,7 @@ fn main() {
     println!("The value of x is: {}", x);
 }
 
-// x +1 will be evaluated and return.
+//==x +1 will be evaluated and returned.
 fn main() {
     let x = plus_one(5);
 
@@ -633,7 +669,7 @@ fn plus_one(x: i32) -> i32 {
     x + 1
 }
 
-// This will error because of semicolon on x+1;
+//==This will error because of semicolon on x+1;
 // That makes it a statement, not an expression.
 fn main() {
     let x = plus_one(5);
@@ -650,29 +686,29 @@ fn plus_one(x: i32) -> i32 {
 
 - Simple comments use `//`
 - For mutiple comments, each line needs double slashes.
-- Convention is usually have d-slashes above when you want to comment.
-  - Possible but not convention: doing inline double slashes to make comments.
+- Convention is usually have d-slashes with comments, above where you want to comment to point to.
+  - Possible but not convention: doing inline double slashes to make comments at the end of the statement.
 
 ```rust
-// Normal comment
+//==Normal comment
 fn main() {
 // hello, world
 }
 
-// Multi-line comment
+//==Multi-line comment
 fn main() {
 // So we’re doing something complicated here, long enough that we need
 // multiple lines of comments to do it! Whew! Hopefully, this comment will
 // explain what’s going on.
 }
 
-// Convention to comment above the line.
+//==Convention to comment above the line.
 fn main() {
     // I’m feeling lucky today
     let lucky_number = 7;
 }
 
-// Possible but not recommended.
+//==Possible but not recommended.
 fn main() {
     let lucky_number = 7; // I’m feeling lucky today
 }
@@ -690,7 +726,7 @@ fn main() {
 - Chapter 6 has `match` construct for too many if statements.
 
 ```rust
-// This will cause an error.
+//==This will cause an error. 3 is not "truthy".
 fn main() {
     let number = 3;
 
@@ -699,7 +735,7 @@ fn main() {
     }
 }
 
-// The statement evaluates to boolean, so this works.
+//==The statement evaluates to boolean, so this works.
 fn main() {
     let number = 3;
 
@@ -708,7 +744,7 @@ fn main() {
     }
 }
 
-// Only the 2nd block was ran, being the first true condition.
+//==Only the 2nd block was ran, being the first true condition.
 fn main() {
     let number = 6;
 
@@ -729,7 +765,7 @@ fn main() {
 - Determining type at runtime is mor complex.
 
 ```rust
-// "six" needs to be 6 to evaluate correctly.
+//=="six" needs to be int 6 to evaluate correctly.
 fn main() {
     let condition = true;
 
@@ -739,38 +775,37 @@ fn main() {
 }
 ```
 
-- Loops
-
+- **Loops**
   - 3 types: `loop`, `while`, `for`
   - `break` lets you exit the loop.
   - Can also supply value to return after break expression.
-  - Notice the ; to end the statement and assigns the value to result.
+  - Notice the `;` to end the statement and assigns the value to result.
 
-    ```rust
-    // This runs forever until you push Ctrl + C.
-    fn main() {
-        loop {
-            println!("again!");
-        }
-    }
+  ```rust
+  // This runs forever until you push Ctrl + C.
+  fn main() {
+      loop {
+          println!("again!");
+      }
+  }
 
-    // If you want a return value to know when the loop broke.
-    fn main() {
-        let mut counter = 0;
+  // If you want a return value to know when the loop broke.
+  fn main() {
+      let mut counter = 0;
 
-        let result = loop {
-            counter += 1;
+      let result = loop {
+          counter += 1;
 
-            if counter == 10 {
-                break counter * 2;
-            }
-        };
+          if counter == 10 {
+              break counter * 2;
+          }
+      };
 
-        println!("The result is {}", result);
-    }
-    ```
+      println!("The result is {}", result);
+  }
+  ```
 
-- While
+- **While**
   - Runs until the condition is false.
 
 ```rust
@@ -787,7 +822,7 @@ fn main() {
 }
 ```
 
-- For loops
+- **For**
   - The most commonly used loops in Rust.
   - Can also use a while loop to iterate over a collection. This is more error prone if index length is wrong.
   - Also slower because it has to check conditionals at every iteration.
@@ -795,7 +830,7 @@ fn main() {
   - `rev` also provides a reversed range.
 
 ```rust
-// You won't have to track index length.
+//==You won't have to track index length.
 fn main() {
     let a = [10, 20, 30, 40, 50];
 
@@ -804,7 +839,7 @@ fn main() {
     }
 }
 
-// Using Range.
+//==Using Range.
 fn main() {
     for number in (1..4).rev() {
         println!("{}!", number);
@@ -814,10 +849,10 @@ fn main() {
 ```
 
 - Summary
-  - You can build small programs to learn:
-    1. Convert temperatures between Fahrenheit and Celsius.
-    2. Generate the nth Fibonacci number.
-    3. Print the lyrics to the Christmas carol “The Twelve Days of Christmas,” taking advantage of the repetition in the song.
+- You can build small programs to learn:
+  1. Convert temperatures between Fahrenheit and Celsius.
+  2. Generate the nth Fibonacci number.
+  3. Print the lyrics to the Christmas carol “The Twelve Days of Christmas,” taking advantage of the repetition in the song.
 
 # 4.0 Understanding Ownership
 
