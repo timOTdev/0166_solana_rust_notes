@@ -233,10 +233,10 @@ println!("x = {} and y = {}", x, y);
 
 ## 2.7 Using a Crate to Get More Functionality
 
-- A *crate* is a collection of source code files.
+- A _crate_ is a collection of source code files.
 
-  - Our project is a *binary* crate, which has an executable.
-  - A rand crate is a *library* crate, which has code to be used in projects.
+  - Our project is a _binary_ crate, which has an executable.
+  - A rand crate is a _library_ crate, which has code to be used in projects.
   - You can get more crates on crates.io.
   - I think of crates like npm packages.
 
@@ -376,6 +376,7 @@ println!("x = {} and y = {}", x, y);
   - Scoped to where declared.
 
 - **Shadowing**
+
   - When values carry over in subsequent declarations by redeclaring the variable with `let`.
   - We are just transforming the values but we can't reassign the variable name.
   - Also allows changing of the type of the variable because we are _effectively creating a new variable with every new shadow._
@@ -428,6 +429,7 @@ println!("x = {} and y = {}", x, y);
 - Compound types can hold multiple values such as tuples and arrays.
 
 - **Integer Types**
+
   - Can be signed and unsigned.
   - Rust's integer defaults to `i32` , generally the fastest even on 64-bit systems.
   - Use `i` for signed integer types
@@ -442,8 +444,9 @@ println!("x = {} and y = {}", x, y);
   - During `—release` flag, rust does _not_ check for integer overflow that causes panic.
 
 - **Integer overflow and complement wrapping**
+
   - Integer overflow is when numbers go beyond their designated bits.
-  - C languages have been known to do *complement wrapping*.
+  - C languages have been known to do _complement wrapping_.
 
   - _Complement Wrapping_ will circle back to start at the minimum value of the range.
   - There's 4 types to handle this overflow.
@@ -453,6 +456,7 @@ println!("x = {} and y = {}", x, y);
     4. saturating\_\* - saturate with the minimum or maximum value.
 
 - **Floating-Point Types**
+
   - Uses `f` character.
   - Are decimal numbers and can be f32 or f64.
   - Default assignment is f64.
@@ -467,6 +471,7 @@ println!("x = {} and y = {}", x, y);
     ```
 
 - **Numeric Operations**
+
   - We got all the basic math operations.
 
     ```rust
@@ -492,15 +497,18 @@ println!("x = {} and y = {}", x, y);
     - Either `true` or `false` and take up 1 byte.
 
 - **Character Types**
+
   - Use single quotes with char literals.
   - Use double quotes for string literals.
   - 4 bytes in size and can be more than just ASCII.
 
 - **Compound Types**
+
   - Structures that can hold multiple values into 1 type.
   - Rust has tuples and arrays.
 
   - **Tuple**
+
     - Tuples can vary with data types.
     - Tuples are fixed length, can't redeclare the size.
     - Can destructure tuples into variables.
@@ -535,8 +543,9 @@ println!("x = {} and y = {}", x, y);
     ```
 
   - **Array**
-    - Must all be of the same type. This is opposite of *tuples* with heterogenous types.
-    - Have fixed lengths like *tuples*.
+
+    - Must all be of the same type. This is opposite of _tuples_ with heterogenous types.
+    - Have fixed lengths like _tuples_.
     - Most other languages have mutable array lengths, _not_ Rust.
     - Vectors are homogenous types but can change size.
     - Useful when allocate to stack rather than heap.
@@ -599,6 +608,7 @@ fn another_function() {
 - Rust is an expression-based language, more distintive versus other languages.
 - _Statements_ are instructions that perform some action and do not return a value.
 - _Expressions_ evaluate to a resulting value.
+
   - Also calling a function, calling a macro, or creating new scopes with {} are examples of expressions.
 
 - You can't assign a value to a variable if statements never return a value.
@@ -776,6 +786,7 @@ fn main() {
 ```
 
 - **Loops**
+
   - 3 types: `loop`, `while`, `for`
   - `break` lets you exit the loop.
   - Can also supply value to return after break expression.
@@ -871,7 +882,7 @@ fn main() {
   - Stacks follow LIFO.
   - We _push_ on to the stack and _pop_ off the stack.
   - The data stored on stacks must have a known, fixed size.
-  - The anology is like stacking plates.
+  - The analogy is like stacking plates. You take a new plate off the top.
 
 - **Heaps**
 
@@ -915,6 +926,7 @@ fn main() {
   - We need to use a type more complex than chapter 3's string literal.
   - Strings, the type, are not known at compile time, so we need a way to allocate enough space.
   - String literals are immutable because how it deals with memory.
+    - The size must be known before putting it in memory (stack).
   - We use the second string type, `String`. This is allocated to a heap.
   - Creating a `String` from a string literal: `let s = String::from("hello");`
 
@@ -939,8 +951,8 @@ fn main() {
   - It needs to be requested from memory at runtime and the memory needs to be returned with we're done.
   - Rust automatically removes memory allocation at the end of the closing curly brace by calling `drop`.
 
-  - Historically, other languages with garbage collector (GC), we have to pair an _allocate_ in exact amounts of _free_.
-  - In C++, this pattern is called _Resource Aquisition Is Initialization_ (RAII).
+  - Historically, other languages with garbage collector (GC), we have to pair an _allocate_ with same amounts of _free_.
+  - In C++, this pattern is called _Resource Acquisition Is Initialization_ (RAII).
 
 - **Ways Variables and Data Interact: Move**
 
@@ -951,6 +963,7 @@ fn main() {
   - It can be though of as a _shallow copy_, or a _move_ in Rust terms.
   - Not actually copying the values of the String "hello" to a new memory block (aka _deep copy_).
   - The code below will cause an error because of _double free error_.
+  - When the variables go out of scope, Rust tries to _drop_ `s1` and `s2` variables. The problem is they both point to the same allocated space in memory. This is _double free error_.
 
   - Rust will never make deep copies unless you tell it to.
   - Any "automatic copies" are assumed to be inexpensive for runtime performance.
@@ -992,7 +1005,7 @@ fn main() {
 - **Stack-Only Data: Copy**
 
   - We can use _Copy_ trait for types like integers that need to go on the stack.
-  - The following types implement the _Copy_ trait and is still usuable after the assignment.
+  - The following types implement the _Copy_ trait and is still unusable after the assignment.
   - Types:
     1. All the integer types, such as u32.
     2. The Boolean type, bool, with values true and false.
@@ -1000,9 +1013,9 @@ fn main() {
     4. The character type, char.
     5. Tuples, if they only contain types that also implement Copy. For example, (i32, i32) implements Copy, but (i32, String) does not.
 
-- **Onwership and Functions**
+- **Ownership and Functions**
   - Notice a `move` has a `drop` called later
-  - The main takeaway is that things go out of scope when ownership is passed.
+  - The main takeaway is that variables go out of scope when ownership is passed from one variable to another.
 
 ```rust
 fn main() {
@@ -1016,17 +1029,16 @@ fn main() {
     makes_copy(x);                  // x would move into the function,
                                     // but i32 is a Copy, so it's okay to still
                                     // use x afterward
-} // Here, x goes out of scope, then s. But because s's value was moved, nothing
-  // special happens.
+} // Here, x goes out of scope, then s. But because s's value was moved, nothing special happens.
 
 fn takes_ownership(some_string: String) { // some_string comes into scope
     println!("{}", some_string);
 } // Here, some_string goes out of scope and `drop` is called. The backing
-  // memory is freed.
+  // memory is freed. This is the case for complex values.
 
 fn makes_copy(some_integer: i32) { // some_integer comes into scope
     println!("{}", some_integer);
-} // Here, some_integer goes out of scope. Nothing special happens.
+} // Here, some_integer goes out of scope. Nothing special happens because it's a primitive value.
 ```
 
 - **Return Values and Scope**
@@ -1034,6 +1046,7 @@ fn makes_copy(some_integer: i32) { // some_integer comes into scope
   - You can also use tuples to return back data.
   - Tuples are not the best way as we'll learn later.
   - Items only go out of scopes if ownership is not moved.
+  - If ownership was moved, nothing happens with the `drop` function.
 
 ```rust
 fn main() {
@@ -1089,7 +1102,8 @@ fn calculate_length(s: String) -> (String, usize) {
 ## 4.2 References and Borrowing
 
 - Now we are going to use _references_ by using ampersands `&`.
-  - _references_ are refering to some value without taking ownership of it.
+  - _references_ are referring to some value without taking ownership of it.
+  - I understand it like it's a pointer in C. It just "points" to the physical memory space.
   - _dereferencing_ uses `*`. See chapter 8 and 15.
   - In the previous section code, we have to return the variable to pass the ownership back to the variable to be used in the string println.
   - Now this new code with reference is different.
@@ -1228,7 +1242,7 @@ fn dangle() -> &String { // dangle returns a reference to a String
     &s // return a reference to the String, s
 
     // s will be dropped after the curly brace,
-    // the reference to s will be pointing to invalid String. Danger!
+    // the reference to s (&s) will be pointing to invalid String. Danger!
 }
 ```
 
