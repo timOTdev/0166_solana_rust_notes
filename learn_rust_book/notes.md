@@ -1437,6 +1437,7 @@ struct User {
 }
 
 fn main() {
+    // Fields can be inserted out of order.
     let mut user1 = User {
         email: String::from("someone@example.com"),
         username: String::from("someusername123"),
@@ -1444,9 +1445,11 @@ fn main() {
         sign_in_count: 1,
     };
 
+    // Can freely update fields in instance.
     user1.email = String::from("anotheremail@example.com");
 }
 
+// Function to help create instances.
 fn build_user(email: String, username: String) -> User {
     User {
         email: email,
@@ -1519,7 +1522,7 @@ fn build_user(email: String, username: String) -> User {
   - _Tuple structs_ are like structs but just has the types of the fields and not the member key name.
   - We still have to use two separate structs here even though the field pattern of `i32` is the same in both.
   - Just useful when we want to make different struct types but just have different names.
-  - You can't substitute Color and Struct, they are different!
+  - You can't substitute Color for Struct, they are different!
   - Use dot notation to access field values.
 
   ```rust
@@ -1536,6 +1539,7 @@ fn build_user(email: String, username: String) -> User {
 
   - _Unit-like structs_ are structs that don't have any fields.
   - Useful to implement trait on some type but don't have any data to store in the type itself. Don't understand this yet...see chapter 10.
+  - Perhaps this is useful to make an abstract class.
 
 - **Ownership of Struct Data**
 
@@ -1565,7 +1569,7 @@ fn build_user(email: String, username: String) -> User {
 ## 5.2 An Example Program Using Structs
 
 - We want to use struct to give more clarity to our code.
-- Using multiple arguments or a tuple to an function argument is suffcient.
+- Using multiple arguments or a tuple to an function argument is sufficient.
 - We can do better, use a struct.
 
 - This is the basic way to write our feature.
@@ -1604,6 +1608,7 @@ fn area(width: u32, height: u32) -> u32 {
     }
 
     fn area(dimensions: (u32, u32)) -> u32 {
+        // Is this length or width? Not helpful.
         dimensions.0 * dimensions.1
     }
     ```
@@ -1611,6 +1616,7 @@ fn area(width: u32, height: u32) -> u32 {
 - **Refactoring with Structs: Adding More Meaning**
 
   - This is the best way to write it.
+  - Borrowing the Rectangle struct helps main retain ownership of the variable.
 
     ```rust
     struct Rectangle {
@@ -1632,6 +1638,7 @@ fn area(width: u32, height: u32) -> u32 {
     }
 
     fn area(rectangle: &Rectangle) -> u32 {
+        // Much clearer.
         rectangle.width * rectangle.height
     }
     ```
@@ -1671,6 +1678,7 @@ fn area(width: u32, height: u32) -> u32 {
 
   - Methods can take ownership of `self` or borrow `self` mutably.
   - If we generally want to read data, just use `&self` reference.
+  - `&self` is always rquired.
 
 ```rust
 #[derive(Debug)]
@@ -1762,6 +1770,7 @@ fn main() {
   - Often used for constructors.
   - Associated Functions don't take a `self` as a parameter and "associated" with the struct.
   - So it doesn't need to access the data on the struct at all.
+  - Associated functions are like Python's Static methods to me.
   - Accessed through `::` syntax like `Rectangle::square(3);`
 
   ```rust
@@ -1783,7 +1792,6 @@ fn main() {
   fn main() {
       let sq = Rectangle::square(3);
   }
-
   ```
 
 - **Multiple impl Blocks**
@@ -1836,6 +1844,7 @@ fn main() {
 
     - Here is the same code but more concise and exactly the same features.
     - This helps eliminate the extra struct.
+    - String here is like a parameter that needs to be passed an argument.
 
     ```rust
     fn main() {
@@ -1856,12 +1865,13 @@ fn main() {
   - You can put in strings, numerics, structs, and even other enums.
 
     ```rust
+    //==How to write from scratch
     enum IpAddr {
         V4(u8, u8, u8, u8),
         V6(String),
     }
 
-    // The standard library already has IP4 and IP6 variants since it's so common.
+    //==The standard library already has IP4 and IP6 variants since it's so common.
     enum IpAddr {
         V4(Ipv4Addr),
         V6(Ipv6Addr),
@@ -1873,7 +1883,7 @@ fn main() {
   - This example didn't compile for me. What's suppose to be in the call() body?
 
     ```rust
-    // Written as enums.
+    //==Written as enums.
     enum Message {
         Quit,
         Move { x: i32, y: i32 },
@@ -1881,7 +1891,7 @@ fn main() {
         ChangeColor(i32, i32, i32),
     }
 
-    // The same thing written as struct's
+    //==The same thing written as struct's
     struct QuitMessage; // unit struct
     struct MoveMessage {
         x: i32,
@@ -1890,7 +1900,7 @@ fn main() {
     struct WriteMessage(String); // tuple struct
     struct ChangeColorMessage(i32, i32, i32); // tuple struct
 
-    // Method implementation just like with struct's.
+    //==Method implementation just like with struct's.
     fn main() {
       enum Message {
           Quit,
@@ -1914,8 +1924,8 @@ fn main() {
 
   - Many languages have `null`, which means there's no value there.
   - Rust does not have null but uses Option Enum instead.
-  - I think of Option Enum like a built in null type checker so we don't have to run null checks.
-  - We know there's a value and it's not null.
+  - I think of Option Enum like a built in null type checker so we don't have to do null checks during programming.
+  - It helps us know there's a value and it's not null to save time.
 
   - The standard library has `Option<T>` and so common that it's included in the prelude by default.
   - `<T>` just means the generic type. More on chapter 10.
@@ -1930,6 +1940,7 @@ fn main() {
   - Using `match` or `if let` are good ways to do this.
 
   ```rust
+  //==Adding Option type
   // This will error because Rust doesn't know
   // how to add i8 + Option<i8>.
   fn main() {
@@ -2002,6 +2013,7 @@ fn value_in_cents(coin: Coin) -> u8 {
 }
 
 fn main() {
+    // This prints `State quarter from Alaska! and gives us value of 25.
     value_in_cents(Coin::Quarter(UsState::Alaska));
 }
 ```
@@ -2018,8 +2030,13 @@ fn main() {
         }
     }
 
+    // This returns 6 because it matches the 2nd arm.
     let five = Some(5);
+
+    // This returns 7 because it took the value from the previous variable.
     let six = plus_one(five);
+
+    // Does nothing. Matches 1st arm.
     let none = plus_one(None);
 }
 ```
@@ -2067,12 +2084,12 @@ fn main() {
 
 ## 6.3 Concise Control Flow with if let
 
-- `if let` is syntactic sugar for `match` if you want to handle only 1 case.
+- `if let` is syntactic sugar for `match` if you want to handle only 1 case.- Great for if we care only about 1 case and want to ignore the rest.
 - It's less verbose and you can also include an `else` statement.
 - We lose out on exhaustive checking for conciseness.
 
 ```rust
-// The standard match flow.
+//==The standard match flow.
 fn main() {
     let some_u8_value = Some(0u8);
     match some_u8_value {
@@ -2081,9 +2098,14 @@ fn main() {
     }
 }
 
-// Using if let is cleaner.
+//==Using if let is cleaner.
 fn main() {
     let some_u8_value = Some(0u8);
+
+    // Start with the if let
+    // Then plug in the match condition
+    // Then add the variable we are checking
+    // Then the return for that variable
     if let Some(3) = some_u8_value {
         println!("three");
     }
@@ -2093,6 +2115,7 @@ fn main() {
 - Here's another example where we can add `else` as well.
 
 ```rust
+//==Standard Approach
 // Example where we were using match for state coins.
 #[derive(Debug)]
 enum UsState {
@@ -2117,6 +2140,7 @@ fn main() {
     }
 }
 
+//==Written With "if let"
 // Same example written with if let and else statements.
 #[derive(Debug)]
 enum UsState {
@@ -2132,7 +2156,7 @@ enum Coin {
     Quarter(UsState),
 }
 
-// The syntax takes getting use to.
+//==The syntax takes getting use to.
 fn main() {
     let coin = Coin::Penny;
     let mut count = 0;
