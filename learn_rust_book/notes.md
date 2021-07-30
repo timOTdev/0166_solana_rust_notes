@@ -2204,7 +2204,7 @@ fn main() {
 
 ## 7.2 Defining Modules to Control Scope and Privacy
 
-- _Modules_ lets us organize code within a crate into groups for readability and easy resus.
+- _Modules_ lets us organize code within a crate into groups for readability and easy re-use.
 
   - Can also control the privacy of the items
   - The library example helps us understand the _module tree_
@@ -2254,7 +2254,7 @@ fn main() {
 
 - Super is useful to access things outside of the current module but in the same crate.
 - Basically, reach outside so we need to refer to the "parent".
-- `fix_incorrect_order` can reach for `serve_order` outside of the module.
+- `fix_incorrect_order` can reach for `serve_order` outside of the `back_of_house` module.
 - The parent in this module tree is `crate`.
 
 ```rust
@@ -2301,7 +2301,8 @@ pub fn eat_at_restaurant() {
     println!("I'd like {} toast please", meal.toast);
 
     // The next line won't compile if we uncomment it; we're not allowed
-    // to see or modify the seasonal fruit that comes with the meal
+    // to see or modify the seasonal fruit that comes with the meal.
+    // toast member is set as public, while seasonal_fruit is private.
     // meal.seasonal_fruit = String::from("blueberries");
 }
 ```
@@ -2375,7 +2376,7 @@ fn main() {
 ```
 
 - However if you bring 2 of the same type of functions, you need 2 separate imports.
-- Or you can give them aliases.
+- Or you can give them aliases by using `as`, see next part.
 
 ```rust
 // Using separate imports:
@@ -2514,7 +2515,7 @@ use std::io::{self, Write};
 
 - **Creating a New Vector**
 
-  - _vector_ is a collection of the same type of values stored in a contiguous block in memory.
+  - _vector_ is a collection of the **same type of values** stored in a contiguous block in memory.
   - `let v: Vec<i32> = Vec::new();` is how to create a new empty vector. Need to specify type since the vector is empty.
   - `let v = vec![1, 2, 3]` is using `vec!` macro to create a vector with data inside. Type is automatically inferred by Rust.
   - `Vec<T>` can hold any type and T is called a _generic_.
@@ -2606,7 +2607,7 @@ for i in &mut v {
 
 - **Using an Enum to Store Multiple Types**
 
-- We can combine vectors with `enum` to make our vectors more flexible.
+- We can combine `vectors` with `enum` to make our vectors more flexible.
   - Vectors can only take 1 type of data but enums can have varied types.
   - This allows us to help Rust by declaring some memory allocation on the heap beforehand for the known types but also allow flexibility for the unknown types that come into the enum.
   - We know that there are 3 items of type `SpreadsheetCell` for the vector which follows the rules.
@@ -2645,7 +2646,7 @@ let row = vec![
 
 - **Creating a New String**
 
-  - Use `String::new();` or `to_string();`
+  - Use `String::new();` or `.to_string();`
 
     ```rust
     // Method 1
@@ -2680,7 +2681,8 @@ let row = vec![
 - **Appending to a String with push_str and push**
 
   - Can use `push_str()` and `push()` to update strings.
-  - `push_str()` takes a string slice and does NOT take ownership.
+  - **`push_str()` takes a string slice and does NOT take ownership**.
+
   - Notice `push_str` takes a string slice in code below. Otherwise would fail. You wouldn't have been able to println! if s2 transferred ownership to push_str.
 
     ```rust
@@ -2708,12 +2710,18 @@ let row = vec![
   - What's truly happening here is `s1` was taken ownership by `+` and a copy of `s2` is appended. This is more efficient than copying both.
 
     ```rust
+    //==Think that the + is like running .add(), the problem is
+    // .add() takes only &str which s2 is a String owned type.
+    // Therefor we need to use the reference of s2, or &s2.
     let s1 = String::from("Hello, ");
     let s2 = String::from("world!");
-    let s3 = s1 + &s2; // note s1 ownership has been moved here and can no longer be used
+
+    // NOTE s1 ownership has been moved here and can no longer be used
+    // but we can still freely use s2 because it was a reference.
+    let s3 = s1 + &s2;
     ```
 
-- It can get crazy with multiple additions so use `format!` macro.
+- It can get crazy with multiple additions so almost always use `format!` macro.
 
   - `format!` doesn't take ownership of any of the parameters.
 
@@ -2742,7 +2750,7 @@ let row = vec![
 
 - **Internal Representation**
 
-  - A `String` is a wrapper over a `Vec<u8>`.
+  - A `String` is a just a wrapper over a `Vec<u8>`.
 
     ```rust
     // 4 bytes total
@@ -2751,15 +2759,15 @@ let row = vec![
     // Actually 24 bytes, not 12 as you would think.
     let hello = String::from("Здравствуйте");
 
-    // Trying to get the Cyrillic letter Ze (З) is not easy.
+    // Trying to get the Cyrillic letter Ze (The character looking like З) is not easy.
     // Index 0 is only half of the first character.
     // You need both 1st and 2nd bytes to represent Ze.
     let hello = "Здравствуйте";
     let answer = &hello[0]; // fails
     ```
 
-- So Rust doesn't handle indexing at all!
-- "To avoid returning an unexpected value and causing bugs that might not be discovered immediately, Rust doesn’t compile this code at all and prevents misunderstandings early in the development process."
+  - So Rust doesn't handle indexing at all!
+  - "To avoid returning an unexpected value and causing bugs that might not be discovered immediately, Rust doesn’t compile this code at all and prevents misunderstandings early in the development process."
 
 - **Bytes and Scalar Values and Grapheme Clusters! Oh My!**
 
@@ -2821,13 +2829,14 @@ let row = vec![
 - **Creating a New Hash Map**
 
   - HashMap is not part of the standard library so much be imported.
-  - Least commonly used than `vectors` and `String`, which are included in prelude.
+  - Least commonly used than `vectors` and `String`, which are auto-included in the prelude.
   - Not much support from standard library, so no macro method to create.
   - Keys are of type `String` and values of type `i32`.
   - All keys and values must be homogenous types.
 
   ```rust
   fn main() {
+    // Hashmaps must be imported.
     use std::collections::HashMap;
 
     let mut scores = HashMap::new();
@@ -2844,9 +2853,11 @@ let row = vec![
   fn main() {
     use std::collections::HashMap;
 
+    // Using vec! macro to create collections of the same types.
     let teams = vec![String::from("Blue"), String::from("Yellow")];
     let initial_scores = vec![10, 50];
 
+    // Combining vectors together to make a hashmap.
     let mut scores: HashMap<_, _> =
         teams.into_iter().zip(initial_scores.into_iter()).collect();
   }
@@ -2868,11 +2879,13 @@ let row = vec![
     map.insert(field_name, field_value);
     // field_name and field_value are invalid at this point, try using them and
     // see what compiler error you get!
+    // Ownership was taken with insert, so both variables were consumed.
   ```
 
 - **Accessing Values in a Hash Map**
 
-  - If you use `get` method, you will get an `Option<&V>`. So much be handled if you want the value.
+  - If you use `get` method, you will get an `Option<&V>`.
+  - So must be handled if you want the value.
 
   ```rust
   fn main() {
@@ -2880,6 +2893,7 @@ let row = vec![
 
     let mut scores = HashMap::new();
 
+    // Inserting key-value pairs.
     scores.insert(String::from("Blue"), 10);
     scores.insert(String::from("Yellow"), 50);
 
@@ -2920,6 +2934,7 @@ let row = vec![
 
   let mut scores = HashMap::new();
 
+  // The second insertion will overwrite the first.
   scores.insert(String::from("Blue"), 10);
   scores.insert(String::from("Blue"), 25);
 
@@ -2931,6 +2946,7 @@ let row = vec![
   - Use `entry` API to insert value. Uses Entry enum under the hood.
   - `or_insert` returns a mutable reference to value if key exists.
   - Otherwise, it will insert the new value.
+  - So `insert()` will overwrite while `entry()` will not.
 
   ```rust
   use std::collections::HashMap;
@@ -2942,6 +2958,7 @@ let row = vec![
   scores.entry(String::from("Yellow")).or_insert(50);
 
   // Does NOT insert 50 because 10 already exists.
+  // Basically, does not overwrite.
   scores.entry(String::from("Blue")).or_insert(50);
 
   println!("{:?}", scores); // => {"Yellow": 50, "Blue": 10}
@@ -2953,6 +2970,7 @@ let row = vec![
   - `count` interacts on the value returned.
 
   ```rust
+  //==Counts amount of instances for a word
   use std::collections::HashMap;
 
   let text = "hello world wonderful world";
@@ -2960,9 +2978,13 @@ let row = vec![
   let mut map = HashMap::new();
 
   for word in text.split_whitespace() {
-      // returns &mut v
+      // entry() inserts the word as the key name.
+      // Remember that or_insert only inserts 0 if doesn't key doesn't exist.
+      // Returns &mut v
       let count = map.entry(word).or_insert(0);
+
       // Must dereference the &mut v with * before usage.
+      // Basically accesses the value and increments by 1.
       *count += 1;
   }
 
