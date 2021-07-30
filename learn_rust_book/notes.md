@@ -3047,14 +3047,14 @@ let row = vec![
 - **Using a panic! Backtrace**
 
   - We try to get the 100th item. Rust will panic here.
-  - In C, _buffer overread_ eads that block in memory even if it's not suppose to (security issue)
+  - In C, _buffer overread_ reads that block in memory even if it's not suppose to (a security issue).
   - In Rust, it will stop execution and refuse to continue.
 
   - The last line tells use to run a _backtrace_ or a list of all the functions that have been called to get to this point.
   - To see this, the debug symbols must be enabled.
   - This is enabled by default with `cargo build` or `cargo run` without the --release flag.
 
-  ```text
+  ```rust
   fn main() {
       let v = vec![1, 2, 3];
 
@@ -3062,41 +3062,41 @@ let row = vec![
   }
 
   // Error return.
-  $ cargo run
-  Compiling panic v0.1.0 (file:///projects/panic)
-  Finished dev [unoptimized + debuginfo] target(s) in 0.27s
-  Running `target/debug/panic`
-  thread 'main' panicked at 'index out of bounds: the len is 3 but the index is 99', src/main.rs:4:5
-  note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+  // $ cargo run
+  // Compiling panic v0.1.0 (file:///projects/panic)
+  // Finished dev [unoptimized + debuginfo] target(s) in 0.27s
+  // Running `target/debug/panic`
+  // thread 'main' panicked at 'index out of bounds: the len is 3 but the index is 99', src/main.rs:4:5
+  // note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
   // Running a backtrace.
-  $ RUST_BACKTRACE=1 cargo run
-  thread 'main' panicked at 'index out of bounds: the len is 3 but the index is 99', src/main.rs:4:5
-  stack backtrace:
-    0: rust_begin_unwind
-              at /rustc/7eac88abb2e57e752f3302f02be5f3ce3d7adfb4/library/std/src/panicking.rs:483
-    1: core::panicking::panic_fmt
-              at /rustc/7eac88abb2e57e752f3302f02be5f3ce3d7adfb4/library/core/src/panicking.rs:85
-    2: core::panicking::panic_bounds_check
-              at /rustc/7eac88abb2e57e752f3302f02be5f3ce3d7adfb4/library/core/src/panicking.rs:62
-    3: <usize as core::slice::index::SliceIndex<[T]>>::index
-              at /rustc/7eac88abb2e57e752f3302f02be5f3ce3d7adfb4/library/core/src/slice/index.rs:255
-    4: core::slice::index::<impl core::ops::index::Index<I> for [T]>::index
-              at /rustc/7eac88abb2e57e752f3302f02be5f3ce3d7adfb4/library/core/src/slice/index.rs:15
-    5: <alloc::vec::Vec<T> as core::ops::index::Index<I>>::index
-              at /rustc/7eac88abb2e57e752f3302f02be5f3ce3d7adfb4/library/alloc/src/vec.rs:1982
-    6: panic::main
-              at ./src/main.rs:4
-    7: core::ops::function::FnOnce::call_once
-              at /rustc/7eac88abb2e57e752f3302f02be5f3ce3d7adfb4/library/core/src/ops/function.rs:227
-  note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+  // $ RUST_BACKTRACE=1 cargo run
+  // thread 'main' panicked at 'index out of bounds: the len is 3 but the index is 99', src/main.rs:4:5
+  // stack backtrace:
+  // 0: rust_begin_unwind
+  //            at /rustc/7eac88abb2e57e752f3302f02be5f3ce3d7adfb4/library/std/src/panicking.rs:483
+  // 1: core::panicking::panic_fmt
+  //            at /rustc/7eac88abb2e57e752f3302f02be5f3ce3d7adfb4/library/core/src/panicking.rs:85
+  // 2: core::panicking::panic_bounds_check
+  //            at /rustc/7eac88abb2e57e752f3302f02be5f3ce3d7adfb4/library/core/src/panicking.rs:62
+  // 3: <usize as core::slice::index::SliceIndex<[T]>>::index
+  //            at /rustc/7eac88abb2e57e752f3302f02be5f3ce3d7adfb4/library/core/src/slice/index.rs:255
+  // 4: core::slice::index::<impl core::ops::index::Index<I> for [T]>::index
+  //            at /rustc/7eac88abb2e57e752f3302f02be5f3ce3d7adfb4/library/core/src/slice/index.rs:15
+  // 5: <alloc::vec::Vec<T> as core::ops::index::Index<I>>::index
+  //            at /rustc/7eac88abb2e57e752f3302f02be5f3ce3d7adfb4/library/alloc/src/vec.rs:1982
+  // 6: panic::main
+  //            at ./src/main.rs:4
+  // 7: core::ops::function::FnOnce::call_once
+  //            at /rustc/7eac88abb2e57e752f3302f02be5f3ce3d7adfb4/library/core/src/ops/function.rs:227
+  // note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
   ```
 
 ## 9.2 Recoverable Errors with Result
 
 - Sometimes we just want to take another action if there's an error.
 - We don't want to quit the operation completely.
-- Like creating a new file, if the file doesn't exist.
+- Like creating a new file if the file doesn't exist.
 - We can use the `Result` enum for this:
 
   - Where _T_ is the any type that returns with successfully Ok.
@@ -3186,7 +3186,7 @@ let row = vec![
       };
   }
 
-  // More advance, functionally same refactor
+  // More advance, functionally same but refactored
   use std::fs::File;
   use std::io::ErrorKind;
 
@@ -3207,7 +3207,7 @@ let row = vec![
 
   - `unwrap()` is a shortcut method for match expressions.
   - It returns either the Ok with specified output or Err with `panic!`.
-  - `expect()` is the same as unwrap but lets use choose the error message with `panic!`.
+  - `expect()` is the same as unwrap but lets us choose the error message with `panic!`.
     - This can help us find our code error much faster in the source.
 
   ```rust
@@ -3377,7 +3377,8 @@ let row = vec![
   2. Code needs to rely on output that's not a bad state.
   3. Not a good way to encode this info in the types you use.
 
-  - So examples are if someone passes in bad values or your call to another external code that returns an invalid state that you can't fix. These are situations appropriate to panic.
+  - So examples are if someone passes in bad values or your call to another external code that returns an invalid state that you can't fix.
+  - These are situations appropriate to panic.
 
   - A good ground rule is to check for valid values and then panic.
   - This closes code vulnerabilities and transfer responsibility to the calling programmers.
