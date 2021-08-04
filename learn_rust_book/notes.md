@@ -3446,3 +3446,122 @@ let row = vec![
       }
   }
   ```
+
+# 10. Generic Types, Traits and Lifetimes
+
+- _Generics_ are abstract substitutes for concrete types of other properties.
+- So we don't have to know the types beforehand.
+- In a function, we can also take generics instead of a concrete type like `i32` or `String`.
+- We've already started using generics with `Option<T>`, `Vec<T>`, `HashMap<K, V>` and `Result<T, E>`.
+
+- We are going to also cover traits combining with generic type to restrict to particular behaviors, as opposed to any type.
+- _lifetimes_ are a variety of generics and how references relate to each other.
+- They let us borrow values but still allow the compiler to check the types.
+
+- **Removing Duplication by Extracting a Function**
+- We will write a function that finds the larget value.
+
+```rust
+// ==10.1 Finding largest numbers in a list.
+fn main() {
+    // Makes a vector of integers.
+    let number_list = vec![34, 50, 25, 100, 65];
+
+    // Take the item in the zeroeth index.
+    let mut largest = number_list[0];
+
+    // Loop and replaces the tracker with any larger value.
+    // Otherwise, skips if the current value is equal or smaller.
+    for number in number_list {
+        if number > largest {
+            largest = number;
+        }
+    }
+
+    // Finally, only the largest value should remain.
+    println!("The largest number is {}", largest);
+}
+```
+
+- Now we want to check 2 lists for largest values in each.
+- The code is functional but we can definitely DRY up this verbose example.
+
+```rust
+//==10.2 Finding largest numbers in two lists.
+fn main() {
+    // First list.
+    let number_list = vec![34, 50, 25, 100, 65];
+
+    // Tracker for 1st list.
+    let mut largest = number_list[0];
+
+    // Finds and replaces tracker with larger values.
+    for number in number_list {
+        if number > largest {
+            largest = number;
+        }
+    }
+
+    // Prints largest value.
+    println!("The largest number is {}", largest);
+
+    // Shadow the number_list variable first. See 3.1.
+    // Second list.
+    let number_list = vec![102, 34, 6000, 89, 54, 2, 43, 8];
+
+    // Tracker for 2nd list.
+    let mut largest = number_list[0];
+
+    // Same deal as before.
+    for number in number_list {
+      if number > largest {
+        largest = number;
+        }
+    }
+
+    // Same deal as before.
+    println!("The largest number is {}", largest);
+}
+```
+
+- Let's DRY up 10.2 example.
+
+```rust
+//==10.3 Abstracting out largest fn
+// Takes in reference of an array of integer 32 bits.
+// Outputs a single integer 32 bit.
+fn largest(list: &[i32]) -> i32 {
+    let mut largest = list[0];
+
+    // This is pattern matching and destructing each &i32.
+    // This is not referencing a reference.
+    // See chapter 18.
+    for &item in list {
+        if item > largest {
+            largest = item;
+        }
+    }
+
+    largest
+}
+
+fn main() {
+    // First list operations
+    let number_list = vec![34, 50, 25, 100, 65];
+
+    let result = largest(&number_list);
+    println!("The largest number is {}", result);
+
+    // Second list operations
+    let number_list = vec![102, 34, 6000, 89, 54, 2, 43, 8];
+
+    let result = largest(&number_list);
+    println!("The largest number is {}", result);
+}
+```
+
+## 10.1 Generic Data Types
+
+## 10.2 Traits: Defining Shared Behavior
+
+## 10.3 Validating References with Lifetimes
