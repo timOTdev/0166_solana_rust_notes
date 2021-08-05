@@ -3562,6 +3562,261 @@ fn main() {
 
 ## 10.1 Generic Data Types
 
+- **In Function Definitions**
+
+  - We come also make generic types for functions, methods, enums, or structs.
+  - Here's an example when there's duplicate code that we can DRY up.
+  - We can do this by introducing generic type parameters in a single largest() function.
+  - Generic types uses short single letter names that are capitalize and follow CamelCase. `T` is the default choice.
+
+  ```rust
+  //==10.4 Differing only in name and types in signature
+  // Takes list of i32.
+  fn largest_i32(list: &[i32]) -> i32 {
+      let mut largest = list[0];
+
+      for &item in list {
+          if item > largest {
+              largest = item;
+          }
+      }
+
+      largest
+  }
+
+  // Takes list of char.
+  fn largest_char(list: &[char]) -> char {
+      let mut largest = list[0];
+
+      for &item in list {
+          if item > largest {
+              largest = item;
+          }
+      }
+
+      largest
+  }
+
+  fn main() {
+      let number_list = vec![34, 50, 25, 100, 65];
+
+      let result = largest_i32(&number_list);
+      println!("The largest number is {}", result);
+
+      let char_list = vec!['y', 'm', 'a', 'q'];
+
+      let result = largest_char(&char_list);
+      println!("The largest char is {}", result);
+  }
+  ```
+
+  - Now we'll clean it up to only 1 function.
+  - Note that we have to put the generic in the signature.
+  - Which I think means just after the function name `largest` in `<>`.
+  - This error says that it can only compare values that can be ordered.
+  - `PartialOrd` is a trait. See next section.
+
+  ```rust
+  //== 10.5 One function but doesn't compile yet.
+  fn largest<T>(list: &[T]) -> T {
+      let mut largest = list[0];
+
+      for &item in list {
+          // Error will panic here: binary operation `>` cannot be applied to type `T`
+          // Recommendation: fn largest<T: std::cmp::PartialOrd>(list: &[T]) -> T {
+          if item > largest {
+              largest = item;
+          }
+      }
+
+      largest
+  }
+
+  fn main() {
+      let number_list = vec![34, 50, 25, 100, 65];
+
+      let result = largest(&number_list);
+      println!("The largest number is {}", result);
+
+      let char_list = vec!['y', 'm', 'a', 'q'];
+
+      let result = largest(&char_list);
+      println!("The largest char is {}", result);
+  }
+  ```
+
+- **In Struct Definitions**
+
+  - We can also use one generic `T` to specify all the variants in a struct.
+  - But the variants must all be the same type.
+  - The language is: "this definition says that the `Point<T>` struct is generic over some type T".
+
+  ```rust
+  //==10.6 Struct holding x and y values of type T.
+  struct Point<T> {
+    // means that both x and y are of type T.
+    x: T,
+    y: T,
+  }
+
+  // These work because x and y are the same in each instance.
+  fn main() {
+      let integer = Point { x: 5, y: 10 };
+      let float = Point { x: 1.0, y: 4.0 };
+  }
+  ```
+
+  - When types are not the same, we have to declare multiples.
+
+  ```rust
+  //==10.7 Different types that won't compile
+  struct Point<T> {
+    x: T,
+    y: T,
+  }
+
+  fn main() {
+      // x and y are of different types: integer and float.
+      // won't compile: expected integer, found floating-point number.
+      let wont_work = Point { x: 5, y: 4.0 };
+  }
+  ```
+
+  - Instead, declare 2 types:
+  - But only do a few, if you need more, it's time to break things up.
+
+  ```rust
+  //==10.8 Now we have types T and U. Will compile.
+  struct Point<T, U> {
+    x: T,
+    y: U,
+  }
+
+  fn main() {
+      let both_integer = Point { x: 5, y: 10 };
+      let both_float = Point { x: 1.0, y: 4.0 };
+      let integer_and_float = Point { x: 5, y: 4.0 };
+  }
+  ```
+
+- **In Enum Definitions**
+
+  - We can also vary the types in enums.
+  - We used the result enum in Listing 9-3.
+  - Where T was filled with type from `std::fs::File`.
+  - Where E was filled with type from `std::io::Error`.
+
+  ```rust
+  //==None doesn't hold a value so this is sufficient.
+  enum Option<T> {
+    Some(T),
+    None,
+  }
+
+  // We can specify 2 types also.
+  enum Result<T, E> {
+      Ok(T),
+      Err(E),
+  }
+  ```
+
+- **In Method Definitions**
+
+  - Now we implement a method on a struct.
+  - We have to declare `<T>` after impl because we are telling that we are implementing a method on the type of `Point<T>`.
+  - Rust now knows it a generic type instead of concrete type.
+  - Methods specified for each struct with types have their own methods and not shared.
+  - IE distance_from_origin will NOT exist in `struct Point<T>`.
+
+  ```rust
+  //==10.9 Adding generic method to struct, not concrete type.
+  struct Point<T> {
+    x: T,
+    y: T,
+  }
+
+  // So rust knows we are implementing methods, not concrete types.
+  impl<T> Point<T> {
+      fn x(&self) -> &T {
+          &self.x
+      }
+  }
+
+  fn main() {
+      let p = Point { x: 5, y: 10 };
+
+      println!("p.x = {}", p.x());
+  }
+  ```
+
+  ```rust
+  //==10.10 If we only wanted to implement concrete method type.
+  impl Point<f32> {
+    // This method will NOT exist in `struct Point<T>`.
+    fn distance_from_origin(&self) -> f32 {
+      (self.x.powi(2) + self.y.powi(2)).sqrt()
+    }
+  }
+  ```
+
+  - Let's mix things up a bit with the types during implementing methods.
+  - It's a bit dense so take time.
+
+  ```rust
+  struct Point<T, U> {
+      x: T,
+      y: U,
+  }
+
+  // Returns a new point of x from first struct and y of the 2nd struct.
+  impl<T, U> Point<T, U> {
+      fn mixup<V, W>(self, other: Point<V, W>) -> Point<T, W> {
+          Point {
+              x: self.x,
+              y: other.y,
+          }
+      }
+  }
+
+  fn main() {
+      let p1 = Point { x: 5, y: 10.4 };
+      let p2 = Point { x: "Hello", y: 'c' };
+
+      let p3 = p1.mixup(p2);
+
+      println!("p3.x = {}, p3.y = {}", p3.x, p3.y); // => p3.x = 5, p3.y = c.
+  }
+  ```
+
+- **Performance of Code Using Generics**
+
+  - The performance cost is the same because of _monomorphization_.
+  - Is the process of turning generic code into specific code by filling in the concrete types that are used when compiled.
+
+  - "We pay no runtime cost for using generics. When the code runs, it performs just as it would if we had duplicated each definition by hand. The process of monomorphization makes Rust’s generics extremely efficient at runtime."
+
+  ```rust
+  // Rust will compile and monomorph into...
+  let integer = Some(5);
+  let float = Some(5.0);
+
+  // this.
+  enum Option_i32 {
+      Some(i32),
+      None,
+  }
+
+  enum Option_f64 {
+      Some(f64),
+      None,
+  }
+
+  fn main() {
+      let integer = Option_i32::Some(5);
+      let float = Option_f64::Some(5.0);
+  }
+  ```
+
 ## 10.2 Traits: Defining Shared Behavior
 
 ## 10.3 Validating References with Lifetimes
