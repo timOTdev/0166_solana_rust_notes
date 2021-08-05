@@ -3459,10 +3459,10 @@ let row = vec![
 - They let us borrow values but still allow the compiler to check the types.
 
 - **Removing Duplication by Extracting a Function**
-- We will write a function that finds the larget value.
+- We will write a function that finds the largest value.
 
 ```rust
-// ==10.1 Finding largest numbers in a list.
+// ==10.1 Finding largest number in a list.
 fn main() {
     // Makes a vector of integers.
     let number_list = vec![34, 50, 25, 100, 65];
@@ -3527,7 +3527,7 @@ fn main() {
 - Let's DRY up 10.2 example.
 
 ```rust
-//==10.3 Abstracting out largest fn
+//==10.3 Abstracting out largest() fn
 // Takes in reference of an array of integer 32 bits.
 // Outputs a single integer 32 bit.
 fn largest(list: &[i32]) -> i32 {
