@@ -1,6 +1,7 @@
 # The Rust Programming Language
 
 - [Learn Rust Book](https://www.rust-lang.org/learn)
+- [Direct Link](https://doc.rust-lang.org/book/title-page.html)
 
 # Foreword
 
@@ -3447,7 +3448,7 @@ let row = vec![
   }
   ```
 
-# 10. Generic Types, Traits and Lifetimes
+# 10.0 Generic Types, Traits and Lifetimes
 
 - _Generics_ are abstract substitutes for concrete types of other properties.
 - So we don't have to know the types beforehand.
@@ -3564,9 +3565,9 @@ fn main() {
 
 - **In Function Definitions**
 
-  - We come also make generic types for functions, methods, enums, or structs.
+  - We can also make generic types for functions, methods, enums, or structs.
   - Here's an example when there's duplicate code that we can DRY up.
-  - We can do this by introducing generic type parameters in a single largest() function.
+  - We can do this by introducing generic type parameters with a single largest() function.
   - Generic types uses short single letter names that are capitalize and follow CamelCase. `T` is the default choice.
 
   ```rust
@@ -3613,7 +3614,7 @@ fn main() {
   - Now we'll clean it up to only 1 function.
   - Note that we have to put the generic in the signature.
   - Which I think means just after the function name `largest` in `<>`.
-  - This error says that it can only compare values that can be ordered.
+  - The following error says that it can only compare values that can be ordered.
   - `PartialOrd` is a trait. See next section.
 
   ```rust
@@ -3677,7 +3678,7 @@ fn main() {
 
   fn main() {
       // x and y are of different types: integer and float.
-      // won't compile: expected integer, found floating-point number.
+      // won't compile => expected integer, found floating-point number.
       let wont_work = Point { x: 5, y: 4.0 };
   }
   ```
@@ -3725,8 +3726,7 @@ fn main() {
   - Now we implement a method on a struct.
   - We have to declare `<T>` after impl because we are telling that we are implementing a method on the type of `Point<T>`.
   - Rust now knows it a generic type instead of concrete type.
-  - Methods specified for each struct with types have their own methods and not shared.
-  - IE distance_from_origin will NOT exist in `struct Point<T>`.
+  - Methods specified for each struct with types have their own methods and not shared. IE distance_from_origin exists only on `Point<f32>`, but will NOT exist in `Point<T>`.
 
   ```rust
   //==10.9 Adding generic method to struct, not concrete type.
@@ -3760,7 +3760,7 @@ fn main() {
   ```
 
   - Let's mix things up a bit with the types during implementing methods.
-  - It's a bit dense so take time.
+  - It's a bit dense so take time to parse through.
 
   ```rust
   struct Point<T, U> {
@@ -3779,9 +3779,13 @@ fn main() {
   }
 
   fn main() {
+      // Now T will be of type integer, and U is of type float.
       let p1 = Point { x: 5, y: 10.4 };
+
+      // Now V is of type string, and W is of type char.
       let p2 = Point { x: "Hello", y: 'c' };
 
+      // Let's get T and W outputed.
       let p3 = p1.mixup(p2);
 
       println!("p3.x = {}, p3.y = {}", p3.x, p3.y); // => p3.x = 5, p3.y = c.
@@ -3791,7 +3795,7 @@ fn main() {
 - **Performance of Code Using Generics**
 
   - The performance cost is the same because of _monomorphization_.
-  - Is the process of turning generic code into specific code by filling in the concrete types that are used when compiled.
+  - Is the process of turning generic code into specific code with concrete types that are used when compiled.
 
   - "We pay no runtime cost for using generics. When the code runs, it performs just as it would if we had duplicated each definition by hand. The process of monomorphization makes Rust’s generics extremely efficient at runtime."
 
