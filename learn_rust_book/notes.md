@@ -3823,4 +3823,347 @@ fn main() {
 
 ## 10.2 Traits: Defining Shared Behavior
 
+- Similar to other languages in feature like interfaces.
+- A trait shows functionality based on the type and can share the functionality with other types.
+- To me it's like writing an abstract method that can have a default behavior or required programmed behavior.
+- Trait bounds are how we specify generics that has certain behaviors.
+
+- **Defining a Trait**
+
+  - We use trait definitions to accept types and define set behaviors that does something.
+  - Think having 2 structs like NewsArticle and Tweet can have strings type but they can both behave differently.
+  - We want to have a summary method that works for both.
+
+  ```rust
+  //==10.12 Summary trait that returns default method.
+  // It must be defined when the trait is implemented.
+  // Using a semicolon here means it's an abstract method.
+  // Using curly braces can let us define default behavior.
+  pub trait Summary {
+      // This is a "method signature", only 1 line ending in semicolon.
+      fn summarize(&self) -> String;
+  }
+  ```
+
+- **Implementing a Trait on a Type**
+
+  - Now we want to add this trait to both structs.
+  - The pattern is impl + "trait name" + for + "struct name".
+  - We are also forced to define what summarize does for that struct.
+  - To me, summarize is an abstract class from C#.
+
+  ```rust
+  //==10.13 Implementing Summary Trait on 2 structs
+  pub struct NewsArticle {
+      pub headline: String,
+      pub location: String,
+      pub author: String,
+      pub content: String,
+  }
+
+  // We implement the trait for NewsArticle.
+  impl Summary for NewsArticle {
+      fn summarize(&self) -> String {
+          format!("{}, by {} ({})", self.headline, self.author, self.location)
+      }
+  }
+
+  pub struct Tweet {
+      pub username: String,
+      pub content: String,
+      pub reply: bool,
+      pub retweet: bool,
+  }
+
+  // We implement the trait for Tweet.
+  impl Summary for Tweet {
+      fn summarize(&self) -> String {
+          format!("{}: {}", self.username, self.content)
+      }
+  }
+
+    let tweet = Tweet {
+      username: String::from("horse_ebooks"),
+      content: String::from(
+          "of course, as you probably already know, people",
+      ),
+      reply: false,
+      retweet: false,
+  };
+
+  println!("1 new tweet: {}", tweet.summarize()); // => h1 new tweet: horse_ebooks: of course, as you probably already know, people
+  ```
+
+  - It's important that the structs and traits are in the same scope of the crate.
+  - If someone wants to use this trait, they would have to first import it with `use location::Summary` and the trait also has to be public.
+  - The only restriction is that trait implementation on a type has to be local to a crate.
+  - We can't implement external traits on external types.
+  - This restriction is a property of programs called _coherence_, and specifically _orphan rule_, because the parent type is not present.
+  - The main reason is so that others' codes can't break your code and vice versa.
+
+- **Default Implementations**
+
+  - We can also define how the function acts by default.
+  - Then we don't have to define the function behavior.
+  - The way to override the default implementation and implementing a trait is the same.
+
+  ```rust
+  //==10-14 Default implementation.
+  pub trait Summary {
+      fn summarize(&self) -> String {
+          String::from("(Read more...)")
+      }
+  }
+
+  // This is how we implement a trait that is set by default.
+  // We don't have to define what it does, already in the trait.
+  impl Summary for NewsArticle {}
+
+  let article = NewsArticle {
+      headline: String::from("Penguins win the Stanley Cup Championship!"),
+      location: String::from("Pittsburgh, PA, USA"),
+      author: String::from("Iceburgh"),
+      content: String::from(
+          "The Pittsburgh Penguins once again are the best \
+            hockey team in the NHL.",
+      ),
+  };
+
+  println!("New article available! {}", article.summarize()); // => New article available! (Read more...)
+  ```
+
+  ```rust
+  //==Only have to define the abstract method.
+  pub trait Summary {
+      fn summarize_author(&self) -> String;
+
+      fn summarize(&self) -> String {
+          format!("(Read more from {}...)", self.summarize_author())
+      }
+  }
+
+  // We would only have to implment the abstract trait method, not the default one.
+  impl Summary for Tweet {
+      fn summarize_author(&self) -> String {
+          format!("@{}", self.username)
+      }
+  }
+
+  let tweet = Tweet {
+      username: String::from("horse_ebooks"),
+      content: String::from(
+          "of course, as you probably already know, people",
+      ),
+      reply: false,
+      retweet: false,
+  };
+
+  // Can use the default method without implementation.
+  println!("1 new tweet: {}", tweet.summarize()); // => 1 new tweet: (Read more from @horse_ebooks...)
+  ```
+
+- **Traits as Parameters**
+
+  - You can also use traits on parameters.
+  - `&impl Summary` takes any type that has that trait of `Summary`.
+  - So `NewsArticle` or `Tweet` works, but `String` or `i32` would not.
+  - The latter 2 does not implement Summary trait obviously.
+
+  ```rust
+  pub fn notify(item: &impl Summary) {
+      println!("Breaking news! {}", item.summarize());
+  }
+  ```
+
+- **Trait Bound Syntax**
+
+  - `&impl Trait` is syntactic sugar.
+  - The trait bound syntax is more verbose but can be useful.
+  - `<T: Summary>` is the trait bound syntax.
+
+  ```rust
+  //==Pure form of the syntactic sugar `&impl Trait`
+  // This takes any type that implements Summary.
+  pub fn notify<T: Summary>(item: &T) {
+      println!("Breaking news! {}", item.summarize());
+  }
+
+  //==Parameters can take different types but both must implement Summary Trait.
+  pub fn notify(item1: &impl Summary, item2: &impl Summary) {
+
+  //==When you want both parameter types to be the same and implements Summary Trait.
+  pub fn notify<T: Summary>(item1: &T, item2: &T) {
+  ```
+
+- **Specifying Multiple Trait Bounds with the + Syntax**
+
+  - When we want to use multiple methods, we add more than 1 trait bound.
+  - We add both the traits like this...
+
+  ```rust
+  //==Multiple trait bounds on the parameter.
+  pub fn notify(item: &(impl Summary + Display)) {
+
+  //==Trait bound syntax for generic types. Same thing as above.
+  pub fn notify<T: Summary + Display>(item: &T) {
+  ```
+
+- **Clearer Trait Bounds with where Clauses**
+
+  - When we have too many trait bounds, use where clause.
+  - Its cleaner.
+
+  ```rust
+  // Too many trait bounds...so turn
+  fn some_function<T: Display + Clone, U: Clone + Debug>(t: &T, u: &U) -> i32 {
+
+  // into a where clause.
+  fn some_function<T, U>(t: &T, u: &U) -> i32
+      where T: Display + Clone,
+            U: Clone + Debug
+  {
+  ```
+
+- **Returning Types that Implement Traits**
+
+  - We can also add the generic type with Summary trait on the return position.
+  - This is useful in closures and iterators in chapter 13.
+  - Closures and iterators create types that only the compiler knows or types that are very long to specify
+
+  ```rust
+  //==Return type of generic with Summary Trait.
+  // Rust doesn't know the return type but we know it's Tweet.
+  fn returns_summarizable() -> impl Summary {
+      Tweet {
+          username: String::from("horse_ebooks"),
+          content: String::from(
+              "of course, as you probably already know, people",
+          ),
+          reply: false,
+          retweet: false,
+      }
+  }
+  ```
+
+  - But it doesn't work if we return multiple types, only works for 1 type return
+
+  ```rust
+  //==THIS WILL FAIL.
+  fn returns_summarizable(switch: bool) -> impl Summary {
+      if switch {
+          NewsArticle {
+              headline: String::from(
+                  "Penguins win the Stanley Cup Championship!",
+              ),
+              location: String::from("Pittsburgh, PA, USA"),
+              author: String::from("Iceburgh"),
+              content: String::from(
+                  "The Pittsburgh Penguins once again are the best \
+                  hockey team in the NHL.",
+              ),
+          }
+      } else {
+          Tweet {
+              username: String::from("horse_ebooks"),
+              content: String::from(
+                  "of course, as you probably already know, people",
+              ),
+              reply: false,
+              retweet: false,
+          }
+      }
+  }
+  ```
+
+- **Fixing the largest Function with Trait Bounds**
+
+  - In our largest function example in Listing 10-5, we got an error:
+    `fn largest<T: std::cmp::PartialOrd>(list: &[T]) -> T {`
+  - Basically we needed to bring in the trait of `PartialOrd` to be able to use the greater than symbol.
+  - The `PartialOrd` is already in prelude, don't need to import.
+
+  - Another error pops up: `cannot move out of type`[T]`, a non-copy slice`
+  - We were trying to find only `i32` and `char` types before, both has known size, which uses the Copy method to make a copy to the stack.
+  - If we make the function take generics, some types now don't use Copy method so it now errors.
+
+  ```rust
+  //==10.15 Only works for types that have both traits PartialOrd and Copy, like i32 or char, WON'T WORK FOR OTHER types
+  // An alterante way to write this is is to have &T in the
+  // return position, instead of T after the ->.
+  fn largest<T: PartialOrd + Copy>(list: &[T]) -> T {
+      let mut largest = list[0];
+
+      for &item in list {
+          if item > largest {
+              largest = item;
+          }
+      }
+
+      largest
+  }
+
+  fn main() {
+      let number_list = vec![34, 50, 25, 100, 65];
+
+      let result = largest(&number_list);
+      println!("The largest number is {}", result);
+
+      let char_list = vec!['y', 'm', 'a', 'q'];
+
+      let result = largest(&char_list);
+      println!("The largest char is {}", result);
+  }
+  ```
+
+  - If we wanted different types than `i32` or `char`, we can use the Clone method instead of copy.
+  - Be aware that this comes with performance implications with additional heap allocations.
+
+- **Using Trait Bounds to Conditionally Implement Methods**
+
+  - We can also be very restrictive on criteria for method implementations.
+  - Again, `PartialOrd` lets us do comparisons and `Display` lets us enable printing.
+
+  ```rust
+  //==10.16 Only implement method if generic has both Display AND PartialOrd traits
+  use std::fmt::Display;
+
+  struct Pair<T> {
+      x: T,
+      y: T,
+  }
+
+  impl<T> Pair<T> {
+      fn new(x: T, y: T) -> Self {
+          Self { x, y }
+      }
+  }
+
+  // Generic required to have both traits to implement cpm_display method.
+  impl<T: Display + PartialOrd> Pair<T> {
+      fn cmp_display(&self) {
+          if self.x >= self.y {
+              println!("The largest member is x = {}", self.x);
+          } else {
+              println!("The largest member is y = {}", self.y);
+          }
+      }
+  }
+  ```
+
+  - **Blanket Implementations**
+  - Can also apply trait to a specific generic + trait.
+
+  ```rust
+  //==Blanket Implementation example
+  // When the generic has Display Trait, the ToString trait is also added.
+  impl<T: Display> ToString for T {
+      // --snip--
+  }
+
+  // This lets us use methods like to_string()
+  let s = 3.to_string();
+  ```
+
+  - "Traits and trait bounds let us write code that uses generic type parameters to reduce duplication but also specify to the compiler that we want the generic type to have particular behavior. The compiler can then use the trait bound information to check that all the concrete types used with our code provide the correct behavior. In dynamically typed languages, we would get an error at runtime if we called a method on a type which didn’t define the method. But Rust moves these errors to compile time so we’re forced to fix the problems before our code is even able to run. Additionally, we don’t have to write code that checks for behavior at runtime because we’ve already checked at compile time. Doing so improves performance without having to give up the flexibility of generics."
+
 ## 10.3 Validating References with Lifetimes
