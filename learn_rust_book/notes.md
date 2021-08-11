@@ -3823,21 +3823,22 @@ fn main() {
 
 ## 10.2 Traits: Defining Shared Behavior
 
-- Similar to other languages in feature like interfaces.
+-   Traits are similar to other languages in feature like interfaces.
 - A trait shows functionality based on the type and can share the functionality with other types.
 - To me it's like writing an abstract method that can have a default behavior or required programmed behavior.
+- Default methods are how it reacts in all instances.
 - Trait bounds are how we specify generics that has certain behaviors.
 
 - **Defining a Trait**
 
   - We use trait definitions to accept types and define set behaviors that does something.
-  - Think having 2 structs like NewsArticle and Tweet can have strings type but they can both behave differently.
+  - Think of 2 structs like NewsArticle and Tweet and both can have strings type but they can both behave differently.
   - We want to have a summary method that works for both.
 
   ```rust
   //==10.12 Summary trait that returns default method.
   // It must be defined when the trait is implemented.
-  // Using a semicolon here means it's an abstract method.
+  // Using a semicolon here means it's an abstract method that must be programmed.
   // Using curly braces can let us define default behavior.
   pub trait Summary {
       // This is a "method signature", only 1 line ending in semicolon.
@@ -3849,7 +3850,7 @@ fn main() {
 
   - Now we want to add this trait to both structs.
   - The pattern is impl + "trait name" + for + "struct name".
-  - We are also forced to define what summarize does for that struct.
+  - We are also forced to program what summarize() fn does for that struct.
   - To me, summarize is an abstract class from C#.
 
   ```rust
@@ -3897,6 +3898,7 @@ fn main() {
   - It's important that the structs and traits are in the same scope of the crate.
   - If someone wants to use this trait, they would have to first import it with `use location::Summary` and the trait also has to be public.
   - The only restriction is that trait implementation on a type has to be local to a crate.
+
   - We can't implement external traits on external types.
   - This restriction is a property of programs called _coherence_, and specifically _orphan rule_, because the parent type is not present.
   - The main reason is so that others' codes can't break your code and vice versa.
@@ -3904,11 +3906,12 @@ fn main() {
 - **Default Implementations**
 
   - We can also define how the function acts by default.
-  - Then we don't have to define the function behavior.
+  - Then we don't have to define the function behavior with a new instance.
   - The way to override the default implementation and implementing a trait is the same.
 
   ```rust
   //==10-14 Default implementation.
+  // We use {} instead of semicolon.
   pub trait Summary {
       fn summarize(&self) -> String {
           String::from("(Read more...)")
@@ -3917,6 +3920,7 @@ fn main() {
 
   // This is how we implement a trait that is set by default.
   // We don't have to define what it does, already in the trait.
+  // You still need this line to connect the trait with the struct.
   impl Summary for NewsArticle {}
 
   let article = NewsArticle {
@@ -3967,7 +3971,7 @@ fn main() {
   - You can also use traits on parameters.
   - `&impl Summary` takes any type that has that trait of `Summary`.
   - So `NewsArticle` or `Tweet` works, but `String` or `i32` would not.
-  - The latter 2 does not implement Summary trait obviously.
+  - The latter 2 does not implement Summary trait obviously and they are also concrete types..
 
   ```rust
   pub fn notify(item: &impl Summary) {
@@ -3977,7 +3981,7 @@ fn main() {
 
 - **Trait Bound Syntax**
 
-  - `&impl Trait` is syntactic sugar.
+  - `&impl Trait` is actually syntactic sugar.
   - The trait bound syntax is more verbose but can be useful.
   - `<T: Summary>` is the trait bound syntax.
 
@@ -3998,7 +4002,7 @@ fn main() {
 - **Specifying Multiple Trait Bounds with the + Syntax**
 
   - When we want to use multiple methods, we add more than 1 trait bound.
-  - We add both the traits like this...
+  - We add both the traits with `+` sign like this...
 
   ```rust
   //==Multiple trait bounds on the parameter.
@@ -4010,14 +4014,14 @@ fn main() {
 
 - **Clearer Trait Bounds with where Clauses**
 
-  - When we have too many trait bounds, use where clause.
-  - Its cleaner.
+  - When we have too many trait bounds, use where clause to make it easier to read.
+  - Notice that using where can also implement combinations of different traits.
 
   ```rust
-  // Too many trait bounds...so turn
+  // Too many trait bounds...so turn this cluttered syntax
   fn some_function<T: Display + Clone, U: Clone + Debug>(t: &T, u: &U) -> i32 {
 
-  // into a where clause.
+  // into a cleaner where clause.
   fn some_function<T, U>(t: &T, u: &U) -> i32
       where T: Display + Clone,
             U: Clone + Debug
@@ -4027,8 +4031,8 @@ fn main() {
 - **Returning Types that Implement Traits**
 
   - We can also add the generic type with Summary trait on the return position.
-  - This is useful in closures and iterators in chapter 13.
-  - Closures and iterators create types that only the compiler knows or types that are very long to specify
+  - This is useful in closures and iterators, more in chapter 13.
+  - Closures and iterators create types that only the compiler knows or types that are very long to specify.
 
   ```rust
   //==Return type of generic with Summary Trait.
@@ -4045,10 +4049,12 @@ fn main() {
   }
   ```
 
-  - But it doesn't work if we return multiple types, only works for 1 type return
+  - But it doesn't work if we return multiple types, only works for 1 type return.
 
   ```rust
   //==THIS WILL FAIL.
+  // The switch statement could cause a return of type NewsArticle or Tweet.
+  // It's ambiguous and Rust won't allow 2 types to return.
   fn returns_summarizable(switch: bool) -> impl Summary {
       if switch {
           NewsArticle {
@@ -4088,7 +4094,7 @@ fn main() {
 
   ```rust
   //==10.15 Only works for types that have both traits PartialOrd and Copy, like i32 or char, WON'T WORK FOR OTHER types
-  // An alterante way to write this is is to have &T in the
+  // An alternate way solve this problem is to write this is is to have &T in the
   // return position, instead of T after the ->.
   fn largest<T: PartialOrd + Copy>(list: &[T]) -> T {
       let mut largest = list[0];
@@ -4124,7 +4130,7 @@ fn main() {
   - Again, `PartialOrd` lets us do comparisons and `Display` lets us enable printing.
 
   ```rust
-  //==10.16 Only implement method if generic has both Display AND PartialOrd traits
+  //==10.16 Only implement cmp_display method if generic has both Display AND PartialOrd traits
   use std::fmt::Display;
 
   struct Pair<T> {
@@ -4155,7 +4161,7 @@ fn main() {
 
   ```rust
   //==Blanket Implementation example
-  // When the generic has Display Trait, the ToString trait is also added.
+  // When the generic has the Display Trait, the ToString trait is also added.
   impl<T: Display> ToString for T {
       // --snip--
   }
