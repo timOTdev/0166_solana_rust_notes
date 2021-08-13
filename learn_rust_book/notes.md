@@ -3823,7 +3823,7 @@ fn main() {
 
 ## 10.2 Traits: Defining Shared Behavior
 
--   Traits are similar to other languages in feature like interfaces.
+- Traits are similar to other languages in feature like interfaces.
 - A trait shows functionality based on the type and can share the functionality with other types.
 - To me it's like writing an abstract method that can have a default behavior or required programmed behavior.
 - Default methods are how it reacts in all instances.
@@ -4173,16 +4173,18 @@ fn main() {
   - "Traits and trait bounds let us write code that uses generic type parameters to reduce duplication but also specify to the compiler that we want the generic type to have particular behavior. The compiler can then use the trait bound information to check that all the concrete types used with our code provide the correct behavior. In dynamically typed languages, we would get an error at runtime if we called a method on a type which didn’t define the method. But Rust moves these errors to compile time so we’re forced to fix the problems before our code is even able to run. Additionally, we don’t have to write code that checks for behavior at runtime because we’ve already checked at compile time. Doing so improves performance without having to give up the flexibility of generics."
 
 ## 10.3 Validating References with Lifetimes
-  - A **lifetime** is the the scope for which a reference is valid.
-  - It's a distinctive feature in Rust.
-  - Usually it's inferred but it must be defined when there's multiple types.
+
+- A **lifetime** is the the scope for which a reference is valid.
+- It's a distinctive feature in Rust.
+- Usually it's inferred but it must be defined when there's multiple types.
 
 > Note: The examples in Listings 10-17, 10-18, and 10-24 declare variables without giving them an initial value, so the variable name exists in the outer scope. At first glance, this might appear to be in conflict with Rust’s having no null values. However, if we try to use a variable before giving it a value, we’ll get a compile-time error, which shows that Rust indeed does not allow null values.
 
 - **Preventing Dangling References with Lifetimes**
+
   - We have to pay attention to how long a variable lasts.
   - In this example, `r` would be referencing `x` which has already been deallocated in memory.
-  - Rust uses something called a *borrow checker*.
+  - Rust uses something called a _borrow checker_.
 
   ```rust
   //==10.17 Value has gone out of scope
@@ -4199,11 +4201,13 @@ fn main() {
   ```
 
 - **The Borrow Checker**
+
   - This compares scopes to determine whether all borrows are valid.
   - We have to make sure the borrowed reference x (b scope) in the diagram, lasts longer than r (a scope).
 
   ```rust
   //==10.18 Visualizing lifetimes
+  // 'b lifetime ends early so this will not compile.
   {
       let r;                // ---------+-- 'a
                             //          |
@@ -4215,7 +4219,8 @@ fn main() {
       println!("r: {}", r); //          |
   }                         // ---------+
 
-  //==10.18 We can fix it with lifetime
+  //==10.19 We can fix it by understanding lifetime
+  // This will compile because 'b lifetime is long enough.
   {
       let x = 5;            // ----------+-- 'b
                             //           |
@@ -4227,9 +4232,10 @@ fn main() {
   ```
 
 - **Generic Lifetimes in Functions**
+
   - It's ambiguous here about which reference is being returned, whether x or y.
   - Rust and developers won't know which will return unless we have a way to declare how long the life of x and y are.
-  - We will start using something called *generic lifetime parameters*.
+  - We will start using something called _generic lifetime parameters_.
 
   ```rust
   //==10.20 Now using lifetimes with functions
@@ -4242,7 +4248,7 @@ fn main() {
       println!("The longest string is {}", result);
   }
 
-  // This won't compile.
+  // This won't compile because the return is ambiguous.
   fn longest(x: &str, y: &str) -> &str {
       if x.len() > y.len() {
           x
@@ -4253,7 +4259,8 @@ fn main() {
   ```
 
 - **Lifetime Annotation Syntax**
-  - Functions can accept references with any lifetime if we specify a generic lifetime parameter wihtout affecting the actual lifetimes of the arguments.
+
+  - Functions can accept references with any lifetime if we specify a _generic lifetime parameter_ without affecting the actual lifetimes of the arguments.
   - We use an apostrophe and usually lower case letter like a. An example is `'a`.
   - The lifetime `'a` must live as long as the references.
 
@@ -4265,12 +4272,13 @@ fn main() {
   ```
 
 - **Lifetime Annotations in Function Signatures**
+
   - In the example, we want to show that all the parameters and returns all have the same lifetime.
-  - We declare this in the signature after the function name => `<'a>`.
-  - Note we are not changing any lifetimes of x or y inputs here. Rust doesn't care.
-  - We are just telling the borrow checker that when we return from the function, lifetime `'a` is as long as the shortest of the x or y parameter.
-  - Rust is smart enough to figure out lifetimes inside of functions, it's the ones on the outside that it becomes ambiguous.
-  - The lifetime is declared in the signature and needs to be done mannually.
+  - We declare this in the signature after the function name with `<'a>`.
+  - Note we are not changing any lifetimes of x or y here. Rust doesn't care how long the lifetimes of x and y are, only that they last long enough.
+  - We are just telling the borrow checker that when we return from the function, lifetime `'a` is as long as the shortest between the two parameters: x or y.
+  - Rust is smart enough to figure out lifetimes inside of functions, it's the ones on the outside that might be ambiguous.
+  - As developers, we need to manually annotate the lifetimes because Rust is not smart enough to do this.
 
   ```rust
   //==10.22 Specifying all references have the same lifetime
@@ -4283,11 +4291,12 @@ fn main() {
   }
   ```
 
-  - Here is an example that the borrow check approves of even if both values have different lifetimes:
+  - Here is an example that the borrow check approves of even if both values have different lifetimes.
   - `string1` has a lifetime of about 9 lines, where `string2` has a lifetime of about 3 lines.
-  - Rust is happy in the 10.23 but not 10.24.
+  - Rust is happy in the example 10.23 but not example 10.24.
   - It knows and understands these examples because we defined `'a` in the `longest()` fn.
-  - You have to think that Rust can't see the whole picture like we do...so it needs help. It also runs linearly so needs to check.
+  - You have to think that Rust can't see the whole picture like we do...so it needs help. It also runs linearly so needs to check in this manner.
+
   ```rust
   //==10.23 String values with different lifetimes.
   fn main() {
@@ -4296,6 +4305,7 @@ fn main() {
       {
           let string2 = String::from("xyz");
           let result = longest(string1.as_str(), string2.as_str());
+          // string1 and string2 lifetime is both good up to this point.
           println!("The longest string is {}", result);
       }
   }
@@ -4308,10 +4318,14 @@ fn main() {
           let string2 = String::from("xyz");
           result = longest(string1.as_str(), string2.as_str());
       }
+      // Result was already deallocated on the last line
+      // so we can't use in the println.
       println!("The longest string is {}", result); // error => `string2` does not live long enough
   }
   ```
+
 - **Thinking in Terms of Lifetimes**
+
   - Lifetimes depend on use cases.
   - If you only need to return one parameter with a lifetime, we wouldn't need lifetimes for both parameters.
 
@@ -4332,18 +4346,20 @@ fn main() {
   }
   ```
 
-  - We wouldn't want to return a value created within a function because that would create a *dangling reference*, as that variable would go out of scope by the end of the function.
+  - We wouldn't want to return a variable created within a function because that would create a _dangling reference_, as that variable would go out of scope by the end of the function.
   - The best fix here is to return an owned data type rather than a reference. The calling function is then responsible for cleanup instead.
   - Rust only asks that you return at least one of the parameters.
 
   ```rust
-  //==This would go out of scope and error.
+  //==This would go out of scope and error because result is a dangling reference.
   fn longest<'a>(x: &str, y: &str) -> &'a str {
       let result = String::from("really long string");
       result.as_str() // => cannot return value referencing local variable `result`
   }
   ```
+
 - **Lifetime Annotations in Struct Definitions**
+
   - Structs can have references but you have to add a lifetime annotation for one for every reference in the struct.
   - The struct instance can't outlive the shortest of it's fields, `part`.
   - Everything is valid and compiles here.
@@ -4365,11 +4381,12 @@ fn main() {
   ```
 
 - **Lifetime Elision Rules**
+
   - Before Rust 1.0, developers has to write `fn first_word<'a>(s: &'a str) -> &'a str {` and not practical. The rule use to be that every reference needed an explicit lifetime.
-  - Why does this compile? It's predictable and followed few deterministic patterns. Developers programmed it into the language.
+  - Why does this compile? It's predictable and followed few deterministic patterns so developers programmed it into the language.
 
   ```rust
-  //==10.25 Compiles because of the rules.
+  //==10.25 Compiles because of the 1st Elision rule.
   fn first_word(s: &str) -> &str {
       let bytes = s.as_bytes();
 
@@ -4383,24 +4400,27 @@ fn main() {
   }
   ```
 
-  - To save time, rules were constructed called *Lifetime Elision Rules* and there could be more like them in the future.
+  - To save time, rules were constructed called _Lifetime Elision Rules_ and there could be more like them in the future.
   - These rules are automatic, developers don't have to write them and Rust automatically evaluates them.
   - The rules don't handle all cases and will give an error in any ambiguous cases of references.
   - There are 3 rules total.
 
-  - *input lifetimes* are ones on functions and methods parameters.
+  - _input lifetimes_ are ones on functions and methods parameters.
   - The 1st rule applies on input lifetimes.
 
-  - *output lifetimes* are ones on return values.
+  - _output lifetimes_ are ones on return values.
   - The 2nd and 3rd rules applies on output lifetimes.
 
   - **Rules**
-  1. Each parameter that is a reference gets its own lifetime parameter (in the signature).
-    - 1 for 1: `fn foo<'a>(x: &'a i32)`
-    - 2 for 2: `foo<'a, 'b>(x: &'a i32, y: &'b i32)`
+
+  1. Each input parameter that is a reference gets its own lifetime parameter (in the signature).
+
+  - 1 for 1: `fn foo<'a>(x: &'a i32)`
+  - 2 for 2: `foo<'a, 'b>(x: &'a i32, y: &'b i32)`
 
   2. If there is exactly one input lifetime parameter, that lifetime is assigned to all output lifetime parameters.
-    - `fn foo<'a>(x: &'a i32) -> &'a i32`
+
+  - `fn foo<'a>(x: &'a i32) -> &'a i32`
 
   3. If there are multiple input lifetime parameters, but one of them is `&self` or `&mut self` because this is a method, the lifetime of self is assigned to all output lifetime parameters. This third rule makes methods much nicer to read and write because fewer symbols are necessary.
 
@@ -4418,16 +4438,20 @@ fn main() {
   // 3rd rule doesn't apply since we don't have &self or &mut self.
 
   //== Another example
+  // This is ambiguous and will error out.
   fn longest(x: &str, y: &str) -> &str {
 
   // After 1st rule
   fn longest<'a, 'b>(x: &'a str, y: &'b str) -> &str {
 
   // 2nd and 3rd doesn't apply.
-  // This is ambiguous and will error out.
+  // For 2nd, there's not only 1 input lifetime.
+  // For 3rd, there's not &self or &mut self.
   ```
+
 - **Lifetime Annotations in Method Definitions**
-  - We have to use a case by case basis.
+
+  - We have to use a case by case basis for annotating lifetime on methods also.
 
   ```rust
   //==Satifies 1st Elision Rule
@@ -4450,9 +4474,10 @@ fn main() {
   ```
 
 - **The Static Lifetime**
+
   - Lasts the whole of the entire duration of the program.
   - But do consider if we really need it.
-  - Most problems can be handled by fixing *dangling reference* or *mismatch* of available lifetimes.
+  - Most problems can be handled by fixing _dangling reference_ or _mismatch_ of available lifetimes.
 
   ```rust
   //== Static lasts the whole program.
@@ -4460,6 +4485,7 @@ fn main() {
   ```
 
 - **Generic Type Parameters, Trait Bounds, and Lifetimes Together**
+
   - Looking at everything at once.
   - This all compiles just fine.
   - The return type works because x and y have appropriate lifetimes.
@@ -4485,6 +4511,7 @@ fn main() {
       }
   }
   ```
+
 - **Summary**
   - All of the lifetime annotations help use ensure flexible code without lifetime annotations.
   - Chapter 17 also has trait objects.
