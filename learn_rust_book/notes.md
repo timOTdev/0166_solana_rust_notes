@@ -4515,3 +4515,420 @@ fn main() {
 - **Summary**
   - All of the lifetime annotations help use ensure flexible code without lifetime annotations.
   - Chapter 17 also has trait objects.
+
+# 11.0 Writing Automated Tests
+
+> “Program testing can be a very effective way to show the presence of bugs, but it is hopelessly inadequate for showing their absence.” -Edsger W. Dijkstra, "The Humble Programmer" essay
+
+- Testing is a complex skill.
+- Rust is good because it has a type checker but it can't catch everything.
+- If we have an add_two() fn, we need to write tests that the function when passed a value of 3, will return the value 5.
+- We need to make sure that this doesn't break with new changes either.
+
+## 11.1 How to Write Tests
+
+- When we test, we need to set up the state, run test code, and assert the results.
+
+- **The Anatomy of a Test Function**
+
+  - we use `#[test]` on the line before `fn`.
+  - Rust builds a test runner binary that runs functions annotated with `test` attribute and logs if they passed or failed.
+  - When we make a new library project with Cargo, a test module with a test function in it is automatically generated for us.
+  - We can also have non-test functions in the `tests` module to set up any scenarios or do operations. Just use `#[test]` to indicate if it's a test function.
+
+  ```rust
+  //==11.1 Created a new library project
+  $ cargo new adder --lib
+       Created library `adder` project
+  $ cd adder
+
+  // In src/lib.rs
+  #[cfg(test)]
+  mod tests {
+      #[test]
+      fn it_works() {
+          assert_eq!(2 + 2, 4);
+      }
+  }
+
+  //==11.2 Output when we run the test
+  $ cargo test
+   Compiling adder v0.1.0 (file:///projects/adder)
+    Finished test [unoptimized + debuginfo] target(s) in 0.57s
+     Running unittests (target/debug/deps/adder-92948b65e88960b4)
+
+  running 1 test
+  test tests::it_works ... ok
+
+  // No ignored tasks, more in 11.2
+  // measured is for benchmark performance testing
+  test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+    // This is for documentation tests. Let's you test API documentation!!
+     Doc-tests adder
+
+  running 0 tests
+
+  test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+  ```
+
+  - Let's run 2 tests:
+
+  ```rust
+  //==11.3 Running 2 tests
+  #[cfg(test)]
+  mod tests {
+      #[test]
+      fn exploration() {
+          assert_eq!(2 + 2, 4);
+      }
+
+      #[test]
+      fn another() {
+          panic!("Make this test fail");
+      }
+  }
+
+  //==11.4 The results
+  $ cargo test
+     Compiling adder v0.1.0 (file:///projects/adder)
+      Finished test [unoptimized + debuginfo] target(s) in 0.72s
+       Running unittests (target/debug/deps/adder-92948b65e88960b4)
+
+  running 2 tests
+  test tests::another ... FAILED
+  test tests::exploration ... ok
+
+  failures:
+
+  // Shows you where the test failed.
+  ---- tests::another stdout ----
+  thread 'main' panicked at 'Make this test fail', src/lib.rs:10:9
+  note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+  failures:
+      tests::another
+
+  test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+  error: test failed, to rerun pass '--lib'
+  ```
+
+- **Checking Results with the assert! Macro**
+
+  - `assert!` evalutes if something is true or false.
+  - Does nothing on pass, hits `panic!` macro on false.
+
+  ```rust
+  //==11.5 Using our chapter 5.15 example
+  #[derive(Debug)]
+  struct Rectangle {
+      width: u32,
+      height: u32,
+  }
+
+  impl Rectangle {
+      fn can_hold(&self, other: &Rectangle) -> bool {
+          self.width > other.width && self.height > other.height
+      }
+  }
+
+  //==11.6 Testing code in src/lib.rs
+  #[cfg(test)]
+  mod tests {
+      use super::*;
+
+      #[test]
+      fn larger_can_hold_smaller() {
+          let larger = Rectangle {
+              width: 8,
+              height: 7,
+          };
+          let smaller = Rectangle {
+              width: 5,
+              height: 1,
+          };
+
+          assert!(larger.can_hold(&smaller));
+      }
+
+      #[test]
+      fn smaller_cannot_hold_larger() {
+          let larger = Rectangle {
+              width: 8,
+              height: 7,
+          };
+          let smaller = Rectangle {
+              width: 5,
+              height: 1,
+          };
+
+          assert!(!smaller.can_hold(&larger));
+      }
+  }
+
+  //==Results
+  $ cargo test
+     Compiling rectangle v0.1.0 (file:///projects/rectangle)
+      Finished test [unoptimized + debuginfo] target(s) in 0.66s
+       Running unittests (target/debug/deps/rectangle-6584c4561e48942e)
+
+  running 2 tests
+  test tests::larger_can_hold_smaller ... ok
+  test tests::smaller_cannot_hold_larger ... ok
+
+  test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Doc-tests rectangle
+
+  running 0 tests
+
+  test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+  ```
+
+  - If we change the method. We'll get a panic.
+
+  ```rust
+  //==Incorrect method
+  impl Rectangle {
+      fn can_hold(&self, other: &Rectangle) -> bool {
+          self.width < other.width && self.height > other.height
+      }
+  }
+
+  //==Results in error
+  running 2 tests
+  test tests::larger_can_hold_smaller ... FAILED
+  test tests::smaller_cannot_hold_larger ... ok
+
+  failures:
+
+  ---- tests::larger_can_hold_smaller stdout ----
+  thread 'main' panicked at 'assertion failed: larger.can_hold(&smaller)', src/lib.rs:28:9
+  note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+  failures:
+      tests::larger_can_hold_smaller
+  ```
+
+- **Testing Equality with the assert_eq! and assert_ne! Macros**
+
+  - It's common to check if something is equal or not equal.
+  - The standard library provides `assert_eq!` and `assert_ne!`.
+  - They use `==` and `!=` under the hood, respectively.
+  - The difference with these assertions from `assert!` is that they show us what the values that are being compared, instead of just telling you true/false.
+
+  - In some languages, the language uses `expected` and `actual`.
+  - In rust, we use `left` and `right`
+
+  - `assert_ne!` is useful when we're not sure what a value will be, but we know what the value definitely won’t be if our code is functioning as we intend.
+  - When assertions fail, they use debug formatting so the values must need `PartialEq` and `Debug` traits.
+  - The primitive types are covered by the standard libaries.
+  - For structs and enums, you need the `PartialEq`.
+  - For printing values, you need `Debug`.
+  - Both can be added using `#[derive(PartialEq, Debug)]` to struct or enum definition. See Appendix C.
+
+  ```rust
+  //==11.7 Using assert_eq! macro
+  pub fn add_two(a: i32) -> i32 {
+      a + 2
+  }
+
+  #[cfg(test)]
+  mod tests {
+      use super::*;
+
+      #[test]
+      fn it_adds_two() {
+          assert_eq!(4, add_two(2));
+      }
+  }
+
+  // It passes:
+  running 1 test
+  test tests::it_adds_two ... ok
+
+  test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+  //==Run again with incorrect fn definition.
+  pub fn add_two(a: i32) -> i32 {
+      a + 3
+  }
+
+  // Results in:
+  running 1 test
+  test tests::it_adds_two ... FAILED
+
+  failures:
+
+  ---- tests::it_adds_two stdout ----
+  thread 'main' panicked at 'assertion failed: `(left == right)`
+    left: `4`,
+   right: `5`', src/lib.rs:11:9
+  note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+  failures:
+      tests::it_adds_two
+  ```
+
+- **Adding Custom Failure Messages**
+
+  - Can add optional arguments to the `assert!`, `assert_eq!`, and `assert_ne!` macros.
+  - After 1 arg for assert!, and after 2 args for the latters.
+
+  ```rust
+  //==Adding custom messages after assert! macro.
+  #[test]
+  fn greeting_contains_name() {
+    let result = greeting("Carol");
+    assert!(
+      result.contains("Carol"),
+      "Greeting did not contain name, value was `{}`",
+      result
+    );
+  }
+
+  // Results:
+  running 1 test
+  test tests::greeting_contains_name ... FAILED
+
+  failures:
+
+  ---- tests::greeting_contains_name stdout ----
+  thread 'main' panicked at 'Greeting did not contain name, value was `Hello!`', src/lib.rs:12:9
+  note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  failures:
+      tests::greeting_contains_name
+
+  ```
+
+- **Checking for Panics with should_panic**
+
+  - We can also check if our code panicked with `should_panic`.
+  - The test pass if the code in the function panics and fail if the code inside doesn't panic.
+
+  ```rust
+  //==11.8 Testing should_panic
+  pub struct Guess {
+      value: i32,
+  }
+
+  impl Guess {
+      pub fn new(value: i32) -> Guess {
+          if value < 1 || value > 100 {
+              panic!("Guess value must be between 1 and 100, got {}.", value);
+          }
+
+          Guess { value }
+      }
+  }
+
+  #[cfg(test)]
+  mod tests {
+      use super::*;
+
+      #[test]
+      #[should_panic]
+      fn greater_than_100() {
+          Guess::new(200);
+      }
+  }
+
+  // It passes because 200 is more than 100 and rust panicked.
+  running 1 test
+  test tests::greater_than_100 ... ok
+
+  test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+  ```
+
+  - When it doesn't panic? It didn't trigger panic with condition `value < 1`.
+  - So it just returned the value and did not do anything.
+  - Therefore, `should_panic` test failed.
+
+  ```rust
+  //==Reimplementing to not panic.
+  impl Guess {
+      pub fn new(value: i32) -> Guess {
+          if value < 1 {
+              panic!("Guess value must be between 1 and 100, got {}.", value);
+          }
+
+          Guess { value }
+      }
+  }
+
+  // Results:
+  running 1 test
+  test tests::greater_than_100 ... FAILED
+
+  failures:
+
+  ---- tests::greater_than_100 stdout ----
+  note: test did not panic as expected
+  ```
+
+  - Sometimes we need to know why something panicked.
+  - Using the core feature isn't enough, we need a custom message for special cases.
+  - We can use optional `expected` parameter at the end of `should_panic`.
+  - Basically, be as precise as you want as it fits your case.
+  - 11.9 just checks if the 2nd variant was hit for part of the string.
+
+  ```rust
+  //==11.9 With custom panic message.
+  impl Guess {
+      pub fn new(value: i32) -> Guess {
+          if value < 1 {
+              panic!(
+                  "Guess value must be greater than or equal to 1, got {}.",
+                  value
+              );
+          } else if value > 100 {
+              panic!(
+                  "Guess value must be less than or equal to 100, got {}.",
+                  value
+              );
+          }
+
+          Guess { value }
+      }
+  }
+
+  #[cfg(test)]
+  mod tests {
+      use super::*;
+
+      #[test]
+      #[should_panic(expected = "Guess value must be less than or equal to 100")]
+      fn greater_than_100() {
+          Guess::new(200);
+      }
+  }
+  ```
+
+- **Using Result<T, E> in Tests**
+
+  - We can also use the Result which allows us to use the question mark operator in the body of tests.
+  - However, you can't use `#[should_panic]` with `Result<T, E>`.
+  - We get to specify `Ok` or `Err`
+
+  ```rust
+  #[cfg(test)]
+  mod tests {
+      #[test]
+      fn it_works() -> Result<(), String> {
+          if 2 + 2 == 4 {
+              Ok(())
+          } else {
+              Err(String::from("two plus two does not equal four"))
+          }
+      }
+  }
+  ```
+
+## 11.2 Controlling How Tests Are Run
+
+## 11.3 Test Organization
