@@ -4931,4 +4931,159 @@ fn main() {
 
 ## 11.2 Controlling How Tests Are Run
 
+- `cargo test` is the command to run tests.
+- `cargo test --` flag to specifies that arguments that will drive which tests get run.
+- `cargo test -- --help` lists all the flags.
+
+- **Running Tests in Parallel or Consecutively**
+  - Sometimes you want to run tests in parallel or consecutively.
+  - Running tests in parallel is faster and allows to get the feedback faster.
+  - Running tests consecutively might take longer but they won't share the same state with tests.
+
+
+  - If you have tests that might intefere with each other, run the them consecutively.
+  - `cargo test -- --test-threads=1` to specify we want to run 1 test at a time.
+    - Tells it not to use any parallelism.
+
+- **Showing Function Output**
+  - The problem with successful tests, they won't display the error message, only the failed tests.
+  - `cargo test -- --show-output` lets you show both the passed and failed test outputs.
+
+  - Here's an example to run:
+
+  ```rust
+  //==11.10 Test function for test results display
+  // src/lib.rs
+  fn prints_and_returns_10(a: i32) -> i32 {
+      println!("I got the value {}", a);
+      10
+  }
+
+  #[cfg(test)]
+  mod tests {
+      use super::*;
+
+      #[test]
+      fn this_test_will_pass() {
+          let value = prints_and_returns_10(4);
+          assert_eq!(10, value);
+      }
+
+      #[test]
+      fn this_test_will_fail() {
+          let value = prints_and_returns_10(8);
+          assert_eq!(5, value);
+      }
+  }
+
+  //==Output that doesn't show success and failed tests.
+  // We don't see "I got the value 4" anywhere here.
+  $ cargo test
+    Compiling silly-function v0.1.0 (file:///projects/silly-function)
+      Finished test [unoptimized + debuginfo] target(s) in 0.58s
+      Running unittests (target/debug/deps/silly_function-160869f38cff9166)
+
+  running 2 tests
+  test tests::this_test_will_fail ... FAILED
+  test tests::this_test_will_pass ... ok
+
+  failures:
+
+  ---- tests::this_test_will_fail stdout ----
+  I got the value 8
+  thread 'main' panicked at 'assertion failed: `(left == right)`
+    left: `5`,
+  right: `10`', src/lib.rs:19:9
+  note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+  failures:
+      tests::this_test_will_fail
+
+  test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+  error: test failed, to rerun pass '--lib'
+
+  //==Output that shows both results.
+  // We see both the println! messages here.
+  $ cargo test -- --show-output
+    Compiling silly-function v0.1.0 (file:///projects/silly-function)
+      Finished test [unoptimized + debuginfo] target(s) in 0.60s
+      Running unittests (target/debug/deps/silly_function-160869f38cff9166)
+
+  running 2 tests
+  test tests::this_test_will_fail ... FAILED
+  test tests::this_test_will_pass ... ok
+
+  successes:
+
+  ---- tests::this_test_will_pass stdout ----
+  I got the value 4
+
+
+  successes:
+      tests::this_test_will_pass
+
+  failures:
+
+  ---- tests::this_test_will_fail stdout ----
+  I got the value 8
+  thread 'main' panicked at 'assertion failed: `(left == right)`
+    left: `5`,
+  right: `10`', src/lib.rs:19:9
+  note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+  failures:
+      tests::this_test_will_fail
+
+  test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+  error: test failed, to rerun pass '--lib'
+  ```
+
+- **Running a Subset of Tests by Name**
+  - You can run 3 tests and they run all in parallel when using `cargo test`.
+
+  ```rust
+  //==11.11 Three tests with different names that all run in parallel.
+  pub fn add_two(a: i32) -> i32 {
+      a + 2
+  }
+
+  #[cfg(test)]
+  mod tests {
+      use super::*;
+
+      #[test]
+      fn add_two_and_two() {
+          assert_eq!(4, add_two(2));
+      }
+
+      #[test]
+      fn add_three_and_two() {
+          assert_eq!(5, add_two(3));
+      }
+
+      #[test]
+      fn one_hundred() {
+          assert_eq!(102, add_two(100));
+      }
+  }
+  ```
+
+- **Running Single Tests**
+  - `cargo test one_hundred` runs only the function called "one_hundred".
+  - The other 2 tests will be tallied as `2 filtered out`.
+
+- **Filtering to Run Multiple Tests**
+  - `cargo test add` runs all the tests for function that have the word "add" in their names.
+  - Then there's 1 function `1 filtered out`.
+
+- **Ignoring Some Tests Unless Specifically Requested**
+  - Sometimes it's faster just to add `#[ignore]` to certain functions that you don't want to run.
+  - You can run all the enabled tests or ignored tests by specifying on the command line.
+    - `cargo test` to run and ignore the ignored functions.
+    - `cargo test -- --ignored` to run only the ignored functions.
+
 ## 11.3 Test Organization
