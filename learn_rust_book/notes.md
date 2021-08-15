@@ -3,13 +3,13 @@
 - [Learn Rust Book](https://www.rust-lang.org/learn)
 - [Direct Link](https://doc.rust-lang.org/book/title-page.html)
 
-# Foreword
+## Foreword
 
 - Rust breaks down these barriers by eliminating the old pitfalls and providing a friendly, polished set of tools to help you along the way.
 - Programmers who are already working with low-level code can use Rust to raise their ambitions.
 - It’s expressive and ergonomic enough to make CLI apps, web servers, and many other kinds of code quite pleasant to write.
 
-# Introduction
+## Introduction
 
 - Through balancing powerful technical capacity and a great developer experience, Rust gives you the option to control low-level details (such as memory usage) without all the hassle traditionally associated with such control.
 - In Rust, the compiler plays a gatekeeper role by refusing to compile code with these elusive bugs, including concurrency bugs.
@@ -22,9 +22,9 @@
 - Concept chapters and project chapters
 - Appendices have reference-like materials
 
-# 1.0 Getting Started
+## 1.0 Getting Started
 
-## 1.1 Installation
+### 1.1 Installation
 
 - I installed for windows.
 - Commands in this book work in both _cmd.exe_ and PowerShell.
@@ -33,7 +33,7 @@
 - `rustc --version` - Check Rust version.
 - `rustup doc` - Load docs in browser and read offline.
 
-## 1.2 Hello, World
+### 1.2 Hello, World
 
 - Commands to run in terminal:
 
@@ -65,7 +65,7 @@ fn main() {
 - Rust is ahead-of-time compiled, meaning someone else can run your app without installing Rust.
 - `rustc` is fine for simple program compiling, use cargo for more advance dev chains.
 
-## 1.3 Hello, Cargo
+### 1.3 Hello, Cargo
 
 - Cargo is a build system and package manager that builds code, downloads libaries/dependencies, and builds them together.
 - Cargo has the same commands for all OS
@@ -108,7 +108,7 @@ fn main() {
     version = "0.1.0"
     edition = "2018"
 
-    # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+    ## See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
     [dependencies]
 
@@ -123,7 +123,7 @@ fn main() {
 - `cargo check` - Help speed up development by not creating executable.
 - Run `cargo build --release` when you're deploying or benchmarking.
 
-# 2.0 Programming a Guessing Game
+## 2.0 Programming a Guessing Game
 
 - Implement a random integer between 1 and 100.
 - Implement the player to enter a guess.
@@ -135,7 +135,7 @@ fn main() {
   2. `cd guessing_game`
   3. `cargo run`
 
-## 2.1 Processing a Guess
+### 2.1 Processing a Guess
 
 - The prelude brings only a few types into the scope of every program.
 - We have to use `use` statement to bring in other libraries.
@@ -180,7 +180,7 @@ fn main() {
 }
 ```
 
-## 2.2 Storing Values with Variables
+### 2.2 Storing Values with Variables
 
 - Variables are immutable by default unless you put `mut`.
 - `String::new` is a function that returns a new instance of String.
@@ -198,7 +198,7 @@ fn main() {
   - Lets the program access one piece of data without having to copy data into memory multiple times.
   - References are immutable by default. More in Chapter 4.
 
-## 2.3 Handling Potential Failure with the Result Type
+### 2.3 Handling Potential Failure with the Result Type
 
 - Good to divide lines of code to make it more readable.
 - TIP: The right way to suppress the warning is to actually write error handling.
@@ -211,7 +211,7 @@ fn main() {
 - `Err` crashes the program and passes the argument to expect method.
 - `Ok` will continue and return the user-inputed value (in number of bytes)
 
-## 2.4 Printing Values with println! Placeholders
+### 2.4 Printing Values with println! Placeholders
 
 - Can also print multiple values, not use one.
 
@@ -222,17 +222,17 @@ let y = 10;
 println!("x = {} and y = {}", x, y);
 ```
 
-## 2.5 Testing the First Part
+### 2.5 Testing the First Part
 
 - We use `cargo run` to test.
 - Currently prints out the user input to the screen.
 
-## 2.6 Generating a Secret Number
+### 2.6 Generating a Secret Number
 
 - There's no random number functionality in Rust.
 - We will use `rand` crate.
 
-## 2.7 Using a Crate to Get More Functionality
+### 2.7 Using a Crate to Get More Functionality
 
 - A _crate_ is a collection of source code files.
 
@@ -255,12 +255,12 @@ println!("x = {} and y = {}", x, y);
   - If you run the command again, cargo is smart and will just exit with `Finished`.
   - If you make a minor code change, it will just say `compiling`.
 
-## 2.8 Ensuring Reproducible Builds with Cargo.lock File
+### 2.8 Ensuring Reproducible Builds with Cargo.lock File
 
 - The lock file ensures that the versions specified in the toml file are consistent.
 - Cargo uses this lock file to intelligently build your project in the future to speed up the build process.
 
-## 2.9 Updating a Crate to Get a New Version
+### 2.9 Updating a Crate to Get a New Version
 
 - If you want to run update, run `cargo update`.
 
@@ -273,7 +273,7 @@ println!("x = {} and y = {}", x, y);
   - Then run `cargo build` again to update the lock file.
   - There's more in chapter 14.
 
-## 2.10 Generating a Random Number
+### 2.10 Generating a Random Number
 
 - First, we add the crate: `use rand::Rng`.
 - Rng defines methods that the random number generator implements.
@@ -288,7 +288,7 @@ println!("x = {} and y = {}", x, y);
 - This compiles locally and opens in your browser.
 - Try clicking rand.
 
-## 2.11 Comparing the Guess to the Secret Number
+### 2.11 Comparing the Guess to the Secret Number
 
 - Ordering is another enum. The variants are Less, Greater, Equal.
 - `guess.cmp(&secret_number)` compares the two numbers against each other.
@@ -323,19 +323,19 @@ println!("x = {} and y = {}", x, y);
     - Returns Ok variant if conversion was successful.
     - `expect` is the same as before.
 
-## 2.12 Allowing Multiple Guesses with Looping
+### 2.12 Allowing Multiple Guesses with Looping
 
 - Adding a loop will cause an infinite loop unless there's a stop condition.
   - We need to use `break` to stop the program.
   - If you remember, a non-integer input will also exit the program.
   - There's always Ctrl + C also.
 
-## 2.13 Quitting After a Correct Guess
+### 2.13 Quitting After a Correct Guess
 
 - We add a break in the "you win" arm to exit the match block.
 - This will also exit the program because it is the end.
 
-## 2.14 Handling Invalid Input
+### 2.14 Handling Invalid Input
 
 - If a user enters anything other than a number, we still want to continue.
 - The way to do this is instead of using expect during the string conversion, use a `match` instead.
@@ -346,14 +346,14 @@ println!("x = {} and y = {}", x, y);
   - The `_` is a catchall for any value.
   - If not a number, the loop will continue, effectively asking for another guess.
 
-## 2.15 Summary
+### 2.15 Summary
 
 - We also remove the console of the secret number.
 - Read on chapter 3 to learn more concepts.
 
-# 3.0 Common Programming Concepts
+## 3.0 Common Programming Concepts
 
-## 3.1 Variables and Mutability
+### 3.1 Variables and Mutability
 
 - Language has reserved keywords for code, also ones saved for the [future](https://doc.rust-lang.org/book/appendix-01-keywords.html).
 - By default variables are immutable because easier to reason through.
@@ -408,7 +408,7 @@ println!("x = {} and y = {}", x, y);
     }
     ```
 
-## 3.2 Data Types
+### 3.2 Data Types
 
 - Rust is a _statically typed language,_ we must know types of all variables at compile time.
 - Compiler usually infers types from the value initialized for the variable.
@@ -584,7 +584,7 @@ println!("x = {} and y = {}", x, y);
   - Will get out of bounds if accessing outside of range. (runtime error)
   - Rust's first example of safety principle: will check the index the user enters and exits program (aka panic). Other low-level languages don't do this check and let you access that invalid physical memory space and continue running.
 
-## 3.3 Functions
+### 3.3 Functions
 
 - `main` is the primary entry point of every Rust program.
 - Rust uses snake case all lowercase and with underscores.
@@ -693,7 +693,7 @@ fn plus_one(x: i32) -> i32 {
 }
 ```
 
-## 3.4 Functions
+### 3.4 Functions
 
 - Simple comments use `//`
 - For mutiple comments, each line needs double slashes.
@@ -725,7 +725,7 @@ fn main() {
 }
 ```
 
-## 3.5 Control Flow
+### 3.5 Control Flow
 
 - If statements don't have the parentheses.
 - Else blocks of code are optional just like other languages.
@@ -866,11 +866,11 @@ fn main() {
   2. Generate the nth Fibonacci number.
   3. Print the lyrics to the Christmas carol “The Twelve Days of Christmas,” taking advantage of the repetition in the song.
 
-# 4.0 Understanding Ownership
+## 4.0 Understanding Ownership
 
 - Allows Rust to make memory safety guarantees without needing a garbage collector.
 
-## 4.1 What is Ownership?
+### 4.1 What is Ownership?
 
 - All programs have to manage computer's memory while running.
 
@@ -1100,7 +1100,7 @@ fn calculate_length(s: String) -> (String, usize) {
 }
 ```
 
-## 4.2 References and Borrowing
+### 4.2 References and Borrowing
 
 - Now we are going to use _references_ by using ampersands `&`.
   - _references_ are referring to some value without taking ownership of it.
@@ -1264,7 +1264,7 @@ fn dangle() -> String {
 
 - References must always be pointed correctly and valid.
 
-## 4.3 The Slice Type
+### 4.3 The Slice Type
 
 - _slice_ allows referencing of a contiguous sequence of elements in a collection.
 
@@ -1395,13 +1395,13 @@ fn main() {
 
 - Using ownership, borrowing, and slices helps ensure memory safety in Rust programs at compile time.
 
-# 5.0 Using Structs to Structure Related Data
+## 5.0 Using Structs to Structure Related Data
 
 - A _struct_ or structure is a custom data type that lets you name and package together multiple related values that make up a meaningful group.
 
-## 5.1 Defining and Instantiating Structs
+### 5.1 Defining and Instantiating Structs
 
-- _structs_ are like C# or Javascript classes to me. You can also think of it as a template or scaffold.
+- _structs_ are like C## or Javascript classes to me. You can also think of it as a template or scaffold.
 - _fields_ are like the members of a class to me.
 - We make _instances_ of a struct to use it.
   - Don't have to specify the fields in the same order as in the struct.
@@ -1567,7 +1567,7 @@ fn build_user(email: String, username: String) -> User {
     }
     ```
 
-## 5.2 An Example Program Using Structs
+### 5.2 An Example Program Using Structs
 
 - We want to use struct to give more clarity to our code.
 - Using multiple arguments or a tuple to an function argument is sufficient.
@@ -1670,7 +1670,7 @@ fn area(width: u32, height: u32) -> u32 {
     }
     ```
 
-## 5.3 Method Syntax
+### 5.3 Method Syntax
 
 - Methods are basically functions within a struct.
 - It helps with organization because all methods implemented under one `impl` block.
@@ -1800,14 +1800,14 @@ fn main() {
   - It's valid syntax to have 2 separate impl blocks but not common practice.
   - It's more efficient just to combine the 2 methods under one `impl` block.
 
-# 6.0 Enums and Pattern Matching
+## 6.0 Enums and Pattern Matching
 
 - _Enum_ allow you to make a type with all its possible data types as variants.
 - This helps give meaning with your data.
 - _Option_ lets you express a value that is something or none.
 - Enums in Rust are similar to algebraic data types in functional languages like F#, OCaml, and Haskell.
 
-## 6.1 Defining an Enum
+### 6.1 Defining an Enum
 
 - **Defining an Enum**
 
@@ -1953,7 +1953,7 @@ fn main() {
   }
   ```
 
-## 6.2 The match Control Flow Operator
+### 6.2 The match Control Flow Operator
 
 - Our coin will either be the 4 types of variants for the enum Coin.
 - Variant arms are usually brief but we can use curly braces to use more code.
@@ -2083,7 +2083,7 @@ fn main() {
 }
 ```
 
-## 6.3 Concise Control Flow with if let
+### 6.3 Concise Control Flow with if let
 
 - `if let` is syntactic sugar for `match` if you want to handle only 1 case.- Great for if we care only about 1 case and want to ignore the rest.
 - It's less verbose and you can also include an `else` statement.
@@ -2169,7 +2169,7 @@ fn main() {
 }
 ```
 
-# 7.0 Managing Growing Projects with Packages, Crates, and Modules
+## 7.0 Managing Growing Projects with Packages, Crates, and Modules
 
 - We can divide the program into many parts.
 - We also encapsulate implementation detail and can use it from other parts of the program.
@@ -2183,7 +2183,7 @@ fn main() {
   3. Modules and use
   4. Paths
 
-## 7.1 Packages and Crates
+### 7.1 Packages and Crates
 
 - **A package must contain zero or one library crate, no more. You can have as many binary crates but need at least one crate (binary or library).**
 
@@ -2203,7 +2203,7 @@ fn main() {
   - Keeping a crate's functionality in own scope/namespace helps prevent conflicts.
   - The name `Rng` in our current crate refers to the struct.
 
-## 7.2 Defining Modules to Control Scope and Privacy
+### 7.2 Defining Modules to Control Scope and Privacy
 
 - _Modules_ lets us organize code within a crate into groups for readability and easy re-use.
 
@@ -2215,7 +2215,7 @@ fn main() {
 - Remember that either main.rs or lib.rs form the module at the root of the crate's module structure, the _module tree_.
 - It helps to think of this as a file directory structure.
 
-## 7.3 Paths for Referring to an Item in the Module Tree
+### 7.3 Paths for Referring to an Item in the Module Tree
 
 - Absolute paths start from crate.
 - Relative paths start from where it's called, in the same level in the current module.
@@ -2325,7 +2325,7 @@ pub fn eat_at_restaurant() {
 }
 ```
 
-## 7.4 Bringing Paths Into Scope with the use Keyword
+### 7.4 Bringing Paths Into Scope with the use Keyword
 
 - We can bring in `use` to shorten path names and call methods as local.
 - Can utilize absolute or relative paths with `use` also.
@@ -2495,7 +2495,7 @@ use std::io::{self, Write};
   - Hard to tell which names are in scope.
   - Often used for testing or prelude pattern. More in Chapter 11.
 
-## 7.5 Separating Modules into Different Files
+### 7.5 Separating Modules into Different Files
 
 - When we have multiple files, we can also import modules a certain way.
   - Basically the folder structure works like items in the path.
@@ -2504,7 +2504,7 @@ use std::io::{self, Write};
   - This lets us organize our code.
   - See the separating_modules for example.
 
-# 8.0 Common Collections
+## 8.0 Common Collections
 
 - _Collections_ can contain multiple values unlike other data types.
   - This data is stored on the heap.
@@ -2512,7 +2512,7 @@ use std::io::{self, Write};
   - Can grow or shrink during program running.
   - 3 types: vector, string, hash map
 
-## 8.1 Storing Lists of Values with Vectors
+### 8.1 Storing Lists of Values with Vectors
 
 - **Creating a New Vector**
 
@@ -2548,7 +2548,7 @@ v.push(8);
 
 - **Reading Elements of Vectors**
 
-- ## Two ways to read a vector's content: using index or `get` method
+- ### Two ways to read a vector's content: using index or `get` method
 
   - Method 1: Index method uses `&` and `[]`.
     - Panics if index is out of range.
@@ -2629,7 +2629,7 @@ let row = vec![
 ];
 ```
 
-## 8.2 Storing UTF-8 Encoded Text with Strings
+### 8.2 Storing UTF-8 Encoded Text with Strings
 
 - Strings are complex in Rust compared to other languages.
 - We look at creating, updating, and reading.
@@ -2820,7 +2820,7 @@ let row = vec![
 - **Strings Are Not So Simple**
   - Strings are harder in Rust but they prevent errors involving non-ASCII characters down the line.
 
-## 8.3 Storing Keys with Associated Values in Hash Maps
+### 8.3 Storing Keys with Associated Values in Hash Maps
 
 - `HashMap<K, V>` stores keys and values
 - Uses a _hashing function_ to determine location in memory.
@@ -3008,7 +3008,7 @@ let row = vec![
   2. Convert strings to pig latin. The first consonant of each word is moved to the end of the word and “ay” is added, so “first” becomes “irst-fay.” Words that start with a vowel have “hay” added to the end instead (“apple” becomes “apple-hay”). Keep in mind the details about UTF-8 encoding!
   3. Using a hash map and vectors, create a text interface to allow a user to add employee names to a department in a company. For example, “Add Sally to Engineering” or “Add Amir to Sales.” Then let the user retrieve a list of all people in a department or all people in the company by department, sorted alphabetically.
 
-# 9.0 Error Handling
+## 9.0 Error Handling
 
 - Rust requires handling of errors before the code will compile.
 - _recoverable_ and _unrecoverable_ errors.
@@ -3019,7 +3019,7 @@ let row = vec![
 - Unrecoverable is like symptoms of bugs.
   - Use `panic!`.
 
-## 9.1 Unrecoverable Errors with panic
+### 9.1 Unrecoverable Errors with panic
 
 - `panic!` execution will print a failure message, unwind and process the stack, and then quit.
 
@@ -3093,7 +3093,7 @@ let row = vec![
   // note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
   ```
 
-## 9.2 Recoverable Errors with Result
+### 9.2 Recoverable Errors with Result
 
 - Sometimes we just want to take another action if there's an error.
 - We don't want to quit the operation completely.
@@ -3342,7 +3342,7 @@ let row = vec![
   }
   ```
 
-## 9.3 To panic or Not to panic
+### 9.3 To panic or Not to panic
 
 - When you invoke `panic!`, it's unrecoverable and you're making the decision already on behalf of your code.
   - There are exceptions that panicking is more appropriate.
@@ -3448,7 +3448,7 @@ let row = vec![
   }
   ```
 
-# 10.0 Generic Types, Traits and Lifetimes
+## 10.0 Generic Types, Traits and Lifetimes
 
 - _Generics_ are abstract substitutes for concrete types of other properties.
 - So we don't have to know the types beforehand.
@@ -3561,7 +3561,7 @@ fn main() {
 }
 ```
 
-## 10.1 Generic Data Types
+### 10.1 Generic Data Types
 
 - **In Function Definitions**
 
@@ -3821,7 +3821,7 @@ fn main() {
   }
   ```
 
-## 10.2 Traits: Defining Shared Behavior
+### 10.2 Traits: Defining Shared Behavior
 
 - Traits are similar to other languages in feature like interfaces.
 - A trait shows functionality based on the type and can share the functionality with other types.
@@ -4172,7 +4172,7 @@ fn main() {
 
   - "Traits and trait bounds let us write code that uses generic type parameters to reduce duplication but also specify to the compiler that we want the generic type to have particular behavior. The compiler can then use the trait bound information to check that all the concrete types used with our code provide the correct behavior. In dynamically typed languages, we would get an error at runtime if we called a method on a type which didn’t define the method. But Rust moves these errors to compile time so we’re forced to fix the problems before our code is even able to run. Additionally, we don’t have to write code that checks for behavior at runtime because we’ve already checked at compile time. Doing so improves performance without having to give up the flexibility of generics."
 
-## 10.3 Validating References with Lifetimes
+### 10.3 Validating References with Lifetimes
 
 - A **lifetime** is the the scope for which a reference is valid.
 - It's a distinctive feature in Rust.
@@ -4516,7 +4516,7 @@ fn main() {
   - All of the lifetime annotations help use ensure flexible code without lifetime annotations.
   - Chapter 17 also has trait objects.
 
-# 11.0 Writing Automated Tests
+## 11.0 Writing Automated Tests
 
 > “Program testing can be a very effective way to show the presence of bugs, but it is hopelessly inadequate for showing their absence.” -Edsger W. Dijkstra, "The Humble Programmer" essay
 
@@ -4525,7 +4525,7 @@ fn main() {
 - If we have an add_two() fn, we need to write tests that the function when passed a value of 3, will return the value 5.
 - We need to make sure that this doesn't break with new changes either.
 
-## 11.1 How to Write Tests
+### 11.1 How to Write Tests
 
 - When we test, we need to set up the state, run test code, and assert the results.
 
@@ -4929,7 +4929,7 @@ fn main() {
   }
   ```
 
-## 11.2 Controlling How Tests Are Run
+### 11.2 Controlling How Tests Are Run
 
 - `cargo test` is the command to run tests.
 - `cargo test --` flag to specifies that arguments that will drive which tests get run.
@@ -4941,7 +4941,7 @@ fn main() {
   - Running tests in parallel is faster and allows to get the feedback faster.
   - Running tests consecutively might take longer but they won't share the same state with tests.
 
-  - If you have tests that might intefere with each other, run the them consecutively.
+  - If you have tests that might intefere with each other, run the them consecutively instead of in parallel.
   - `cargo test -- --test-threads=1` to specify we want to run 1 test at a time.
     - Tells it not to use any parallelism.
 
@@ -4977,7 +4977,7 @@ fn main() {
       }
   }
 
-  //==Output that doesn't show success and failed tests.
+  //==Output that doesn't show success test, only the failed one.
   // We don't see "I got the value 4" anywhere here.
   $ cargo test
     Compiling silly-function v0.1.0 (file:///projects/silly-function)
@@ -4995,17 +4995,16 @@ fn main() {
   thread 'main' panicked at 'assertion failed: `(left == right)`
     left: `5`,
   right: `10`', src/lib.rs:19:9
-  note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-
-
-  failures:
+  note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace failures:
       tests::this_test_will_fail
 
   test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
   error: test failed, to rerun pass '--lib'
+  ```
 
-  //==Output that shows both results.
+  ```rust
+  //==Output that shows both results when we run `cargo test -- --show-output`
   // We see both the println! messages here.
   $ cargo test -- --show-output
     Compiling silly-function v0.1.0 (file:///projects/silly-function)
@@ -5046,6 +5045,7 @@ fn main() {
 - **Running a Subset of Tests by Name**
 
   - You can run 3 tests and they run all in parallel when using `cargo test`.
+  - But what if we need to run only some?
 
   ```rust
   //==11.11 Three tests with different names that all run in parallel.
@@ -5087,10 +5087,10 @@ fn main() {
 - **Ignoring Some Tests Unless Specifically Requested**
   - Sometimes it's faster just to add `#[ignore]` to certain functions that you don't want to run.
   - You can run all the enabled tests or ignored tests by specifying on the command line.
-    - `cargo test` to run and ignore the ignored functions.
+    - `cargo test` skips the ignored functions.
     - `cargo test -- --ignored` to run only the ignored functions.
 
-## 11.3 Test Organization
+### 11.3 Test Organization
 
 - We use unit tests and integration tests in rust.
 - _Unit tests_ are smaller, focus on one module in isolation, and can test private interfaces.
@@ -5104,7 +5104,7 @@ fn main() {
 
 - **The Tests Module and #[cfg(test)]**
 
-  - Rust alloww you to test private functions.
+  - Rust allows you to test private functions.
   - Compared to other languages, there's debate on whether to do it or not.
   - Rust does not have a particular stance on this issue and doesn't compel you to test private functions.
   - Example of what a unit test looks like.
