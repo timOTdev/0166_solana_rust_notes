@@ -4936,16 +4936,17 @@ fn main() {
 - `cargo test -- --help` lists all the flags.
 
 - **Running Tests in Parallel or Consecutively**
+
   - Sometimes you want to run tests in parallel or consecutively.
   - Running tests in parallel is faster and allows to get the feedback faster.
   - Running tests consecutively might take longer but they won't share the same state with tests.
-
 
   - If you have tests that might intefere with each other, run the them consecutively.
   - `cargo test -- --test-threads=1` to specify we want to run 1 test at a time.
     - Tells it not to use any parallelism.
 
 - **Showing Function Output**
+
   - The problem with successful tests, they won't display the error message, only the failed tests.
   - `cargo test -- --show-output` lets you show both the passed and failed test outputs.
 
@@ -5043,6 +5044,7 @@ fn main() {
   ```
 
 - **Running a Subset of Tests by Name**
+
   - You can run 3 tests and they run all in parallel when using `cargo test`.
 
   ```rust
@@ -5073,10 +5075,12 @@ fn main() {
   ```
 
 - **Running Single Tests**
+
   - `cargo test one_hundred` runs only the function called "one_hundred".
   - The other 2 tests will be tallied as `2 filtered out`.
 
 - **Filtering to Run Multiple Tests**
+
   - `cargo test add` runs all the tests for function that have the word "add" in their names.
   - Then there's 1 function `1 filtered out`.
 
@@ -5087,3 +5091,134 @@ fn main() {
     - `cargo test -- --ignored` to run only the ignored functions.
 
 ## 11.3 Test Organization
+
+- We use unit tests and integration tests in rust.
+- _Unit tests_ are smaller, focus on one module in isolation, and can test private interfaces.
+- _Integration tests_ runs as if external code would in accessing public interfaces and can run multiple modules per test.
+- A combo of both is needed to have complete coverage.
+
+- **Unit Tests**
+
+  - Goes into the file that you are testing the code.
+  - Convention is to create a module named `tests` and annotated with `cfg(test)`.
+
+- **The Tests Module and #[cfg(test)]**
+
+  - Rust alloww you to test private functions.
+  - Compared to other languages, there's debate on whether to do it or not.
+  - Rust does not have a particular stance on this issue and doesn't compel you to test private functions.
+  - Example of what a unit test looks like.
+
+  ```rust
+  //==11.12 Unit test example in src/lib.rs
+  pub fn add_two(a: i32) -> i32 {
+      internal_adder(a, 2)
+  }
+
+  // This is not a public function but we can still test.
+  fn internal_adder(a: i32, b: i32) -> i32 {
+      a + b
+  }
+
+  // "tests" module that tests our code.
+  #[cfg(test)]
+  mod tests {
+      #[test]
+      fn it_works() {
+          assert_eq!(2 + 2, 4);
+      }
+  }
+  ```
+
+- **Integration Tests**
+
+  - You need a `tests` directory at the top level to do integration tests.
+  - We don't need to annotate any functions.
+  - Tests are run when we run `cargo test`.
+  - _Integration tests_ are needed because they help test units of code that work together that were otherwise passing unit tests.
+  - The test runs as if it was external so you need to import different libraries in.
+
+- **The tests Directory**
+
+  - `tests` directory sits next to `src` folder at the top level.
+  - No file limit in this folder or number of tests you can make.
+  - Rust already knows to look here and compiles each file as its own crate.
+  - Though we are running all the tests in the code sample, you can still run single integration test files using `cargo test --test integration_test`.
+    - This command runs only the tests in the tests/integration_test.rs file.
+
+  ```rust
+  //==11.13 Inside tests folder file: tests/integration_test.rs
+  // import of adder is required to test.
+  use adder;
+
+  #[test]
+  fn it_adds_two() {
+      assert_eq!(4, adder::add_two(2));
+  }
+
+  //==Running cargo test with combo of unit and integration tests.
+  $ cargo test
+     Compiling adder v0.1.0 (file:///projects/adder)
+      Finished test [unoptimized + debuginfo] target(s) in 1.31s
+       Running unittests (target/debug/deps/adder-1082c4b063a8fbe6)
+
+  // Unit tests
+  running 1 test
+  test tests::internal ... ok
+
+  test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+  // Integration tests
+  Running tests/integration_test.rs (target/debug/deps/integration_test-1082c4b063a8fbe6)
+
+  // Each file gets its own line in the result.
+  running 1 test
+  test it_adds_two ... ok
+
+  test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+  // Docs test
+     Doc-tests adder
+
+  running 0 tests
+
+  test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+  ```
+
+- **Submodules in Integration Tests**
+
+  - When we want to share code bits for multiple tests file, you can implement _submodules_.
+  - The problem is that this file doesn't contain any test functions but it still shows `setup` function that was a helpful function during the results phase.
+  - Like so `Running tests/common.rs (target/debug/deps/common-92948b65e88960b4)`
+    and `running 0 tests`
+
+  - Instead of making `tests/common.rs`, make `tests/common/mod.rs` and import it using `mod common;`.
+
+  ```rust
+  //==Adding common submodule into our integration test file.
+  use adder;
+
+  mod common;
+
+  #[test]
+  fn it_adds_two() {
+      common::setup();
+      assert_eq!(4, adder::add_two(2));
+  }
+  ```
+
+  - This alternate naming convention lets rust know not to run this file during `cargo test`.
+  - This convention is something that rust understands and will treat this file as a non-integration test file.
+  - Files in subdirectories of the tests directory don’t get compiled as separate crates or have sections in the test output.
+
+- **Integration Tests for Binary Crates**
+
+  - We can't create integration tests without an `src/lib.rs` file in a binary crate th only has `src/main.rs`.
+  - Only library crates can expose the functions that other crates can use.
+  - The binary crates, like `main.rs`, are meant to run on their own.
+  - Consequently `main.rs` is like the entry point and `lib.rs` is the logic portion.
+
+- **Summary**
+- _Unit tests_ exercise different parts of a library separately and can test private implementation details.
+- _Integration tests_ check that many parts of the library work together correctly, and they use the library’s public API to test the code in the same way external code will use it.
+- Even though Rust’s type system and ownership rules help prevent some kinds of bugs, tests are still important to reduce logic bugs having to do with how your code is expected to behave.
