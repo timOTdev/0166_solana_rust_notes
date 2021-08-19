@@ -5222,3 +5222,99 @@ fn main() {
 - _Unit tests_ exercise different parts of a library separately and can test private implementation details.
 - _Integration tests_ check that many parts of the library work together correctly, and they use the library’s public API to test the code in the same way external code will use it.
 - Even though Rust’s type system and ownership rules help prevent some kinds of bugs, tests are still important to reduce logic bugs having to do with how your code is expected to behave.
+
+## 12.0 An I/O Project: Building a Command Line Program
+
+- We are building a grep tool (globally search a regular expressiong and print).
+- Andrew Gallant already built fast version called _ripgrep_ but ours is much simpler.
+- We use all the concepts from chapter 7, 8, 9, 10, 11.
+- See `rust_minigrep` project repo.
+
+### 12.1 Accepting Command Line Arguments
+
+- `cargo new minigrep`
+- `$ cargo run searchstring example-filename.txt` lets us search a string inside of document.
+- `cargo run`
+- `cargo run needle haystack`
+- `cargo run test sample.txt`
+
+- In chapter 7, we bring in the parent module into scope rather than the function.
+- This makes it less ambiguous that it is a function defined already in the current module.
+- Use `std::env` to bring in the `args` function. Complete path is `std::env::args`.
+
+> Use `args_os` for anything that's invalid unicode. Otherwise `args` will panic.
+
+- `collect` turns all the args into some type of collection.
+- We must provide what collection we want, rust doesn't know what we want.
+
+- **Saving the Argument Values in Variables**
+  - Save the command line arguments starting with index 1.
+  - `args[0]` is the program's name.
+
+```rust
+// ==Main
+use std::env;
+
+fn main() {
+    // Collect the args into a vector of strings.
+    let args: Vec<String> = env::args().collect();
+
+    // Pull out individual args.
+    let query = &args[1];
+    let filename = &args[2];
+
+    // Return all the args.
+    println!("{:?}", args);
+
+    // Returns the saved args.
+    println!("Searching for {}", query);
+    println!("In file {}", filename);
+
+    // ==Output
+
+    // Compiling minigrep v0.1.0 (C:\timh1203\coding\rust_minigrep)
+    //     Finished dev [unoptimized + debuginfo] target(s) in 1.01s
+    //     Running `target\debug\minigrep.exe test sample.txt`
+    // Searching for test
+    // In file sample.txt
+    // PS C:\timh1203\coding\rust_minigrep> cargo run test sample.txt
+    // Compiling minigrep v0.1.0 (C:\timh1203\coding\rust_minigrep)
+    //     Finished dev [unoptimized + debuginfo] target(s) in 0.73s
+    //     Running `target\debug\minigrep.exe test sample.txt`
+
+    // Notice that 1st argument is the program's name.
+    // ["target\\debug\\minigrep.exe", "test", "sample.txt"]
+    // Searching for test
+    // In file sample.txt
+```
+
+### 12.2 Reading a File
+
+- We then add a file with a poem by Emily Dickenson.
+- Then print out the contents of the file.
+- We had to bring in a new module `std::fs` and method `read_to_string()`.
+
+```rust
+use std::env;
+use std::fs;
+
+fn main() {
+    // --snip--
+    println!("In file {}", filename);
+
+    // Reads the file to string variable.
+    let contents = fs::read_to_string(filename)
+        .expect("Something went wrong reading the file");
+
+    // Returns the contents to command line.
+    println!("With text:\n{}", contents);
+}
+```
+
+### 12.3 Refactoring to Improve Modularity and Error Handling
+
+### 12.4 Developing the Library’s Functionality with Test-Driven Development
+
+### 12.5 Working with Environment Variables
+
+### 12.6 Writing Error Messages to Standard Error Instead of Standard Output
