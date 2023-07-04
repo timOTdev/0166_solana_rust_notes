@@ -1,4 +1,6 @@
-# rust_starter
+# 0166_solana_rust_notes
+
+## rust_starter
 
 - hello_world is initial rust app
 - hello_cargo is working with build system and package manager
